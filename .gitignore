@@ -1,0 +1,6 @@
+.*
+*.csv
+
+!.dockerignore
+!.gitignore
+!.env.tmpl
