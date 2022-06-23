@@ -7,5 +7,7 @@ settings.json
 .vscode
 
 .env
+.pytest_cache/
 *.cache
 *.csv
+*.xml

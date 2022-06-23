@@ -1,6 +1,5 @@
 FROM python:3.9-bullseye
 
-
 EXPOSE 5555
 
 RUN mkdir -p /mnt/filestore

@@ -1,19 +1,20 @@
+---
 version: "3"
 
 services:
-
   db:
     image: bitnami/postgresql:latest
+    container_name: postgres
     restart: always
     ports:
       - 5432:5432
     environment:
       - POSTGRESQL_POSTGRES_PASSWORD=postgres
-      - POSTGRESQL_USERNAME=mlflow
-      - POSTGRESQL_PASSWORD=pass1234
+      # - POSTGRESQL_USERNAME=mlflow
+      # - POSTGRESQL_PASSWORD=changeme
       - POSTGRESQL_DATABASE=mlflow
     volumes:
-      - db:/bitnami/postgresql
+      - ./db:/bitnami/postgresql
 
   mlflow:
     image: ninerealmlabs/mlflow-server:latest
@@ -22,11 +23,14 @@ services:
     restart: unless-stopped
     ports:
       - 5555:5555
-    env_file:
-      - ./.env
+    environment:
+      - MLFLOW_HOST=0.0.0.0
+      - MLFLOW_BACKEND_STORE_URI='postgres://postgres:postgres@postgres:5432/mlflow'
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=''
+      # other environmental variables as required
     # volumes:
     #   - ./filestore:/mnt/filestore
 
-volumes:
-  db:
-  # filestore:
+# volumes:
+#   db:
+#   # filestore:
