@@ -1,6 +1,11 @@
-.*
-*.csv
+!**.gitkeep
 
-!.dockerignore
-!.gitignore
-!.env.tmpl
+# OS Junk
+.DS_Store
+Thumbs.db
+settings.json
+.vscode
+
+.env
+*.cache
+*.csv
