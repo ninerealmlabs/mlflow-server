@@ -1,0 +1,97 @@
+---
+version: "3"
+
+services:
+  db:
+    image: bitnami/postgresql:latest
+    container_name: postgres
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASS:-postgres}
+      - POSTGRESQL_DATABASE=${DB_NAME:-mlflow}
+    volumes:
+      - db:/bitnami/postgresql
+    healthcheck:
+      test:
+        - CMD
+        - pg_isready
+        - -d
+        - ${DB_NAME:-mlflow}
+        - -U
+        - ${POSTGRES_USER:-postgres}
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio:
+    container_name: minio
+    image: minio/minio:latest
+    # platform: linux/amd64
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:?Error - MINIO_ROOT_USER must be provided in .env}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:?Error - MINIO_ROOT_PASSWORD must be provided in .env}
+      - MINIO_DEFAULT_BUCKETS=mlflow
+    volumes:
+      - s3:/data
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:9000/minio/health/live
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio_buckets:
+    container_name: buckets
+    image: minio/mc:latest
+    # platform: linux/amd64
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      /usr/bin/mc rm -r --force local/${BUCKET_NAME:-mlflow};
+      /usr/bin/mc mb local/${BUCKET_NAME:-mlflow};
+      /usr/bin/mc policy set private local/${BUCKET_NAME:-mlflow};
+      exit 0;
+      "
+
+  mlflow:
+    image: ninerealmlabs/mlflow-server:latest
+    container_name: mlflow
+    depends_on:
+      db:
+        condition: service_healthy
+      minio_buckets:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    ports:
+      - 5555:5555
+    environment:
+      - MLFLOW_HOST=0.0.0.0
+      - MLFLOW_BACKEND_STORE_URI=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASS:-postgres}@postgres:5432/${DB_NAME:-mlflow}
+      # s3
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=s3://${BUCKET_NAME:-mlflow}
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER:?Error - MINIO_ROOT_USER must be provided in .env}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD:? Error - MINIO_ROOT_PASSWORD must be provided in .env}
+      - AWS_DEFAULT_REGION=us-east
+      # other environmental variables as required
+
+networks:
+  default:
+    name: mlflow
+
+volumes:
+  db:
+  s3:

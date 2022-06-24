@@ -22,7 +22,12 @@ to local files or a variety of remote file storage solutions.
 
 ## Quickstart
 
-## Use `mlflow-server` as remote MLflow instance
+```sh
+cd quickstart
+docker compose up
+```
+
+### Use `mlflow-server` as remote MLflow instance
 
 From a local python runtime with at least `mlflow`, `pandas`, and `scikit-learn` installed,
 run [try-mlflow.py](try-mlflow.py), replacing `tracking_uri` with the address of the running `mlflow-server` instance
@@ -39,7 +44,7 @@ For more, see [run.sh](docker/run.sh)
 > as that will be handled by the container runtime.
 > This mlflow-server exposes port 5555.
 
-Options for storage are as follows (or see [.env.tmpl](.env.tmpl)):
+Options for storage are as follows:
 
 ```ini
 ### environmental variables for docker-compose ###

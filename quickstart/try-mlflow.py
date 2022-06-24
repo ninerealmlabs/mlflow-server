@@ -19,7 +19,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 #%%
 tracking_uri = "http://localhost:5555"
 mlflow.set_tracking_uri(tracking_uri)
-mlflow.set_experiment("test")
+mlflow.set_experiment("iris-test")
 
 with mlflow.start_run():
     print(f"{mlflow.get_artifact_uri()=}")
@@ -56,3 +56,5 @@ with mlflow.start_run():
     mlflow.log_artifact("predictions.csv")
     # clean up
     os.remove("predictions.csv")
+
+# %%

@@ -6,9 +6,11 @@ Thumbs.db
 settings.json
 .vscode
 
-.env
 .envrc
+.ipynb_checkpoints/
 .pytest_cache/
 *.cache
 *.csv
 *.xml
+
+local/
