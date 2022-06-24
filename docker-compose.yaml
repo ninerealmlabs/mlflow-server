@@ -2,35 +2,52 @@
 version: "3"
 
 services:
-  db:
-    image: bitnami/postgresql:latest
-    container_name: postgres
-    restart: always
-    ports:
-      - 5432:5432
-    environment:
-      - POSTGRESQL_POSTGRES_PASSWORD=postgres
-      # - POSTGRESQL_USERNAME=mlflow
-      # - POSTGRESQL_PASSWORD=changeme
-      - POSTGRESQL_DATABASE=mlflow
-    volumes:
-      - ./db:/bitnami/postgresql
+  # db:
+  #   container_name: postgres
+  #   image: bitnami/postgresql:latest
+  #   restart: unless-stopped
+  #   ports:
+  #     - 5432:5432
+  #   environment:
+  #     - POSTGRESQL_PASSWORD=postgres
+  #     - POSTGRESQL_DATABASE=mlflow
+  #   volumes:
+  #     - db:/bitnami/postgresql
 
-  mlflow:
-    image: ninerealmlabs/mlflow-server:latest
-    depends_on:
-      - db
+  minio:
+    container_name: minio
+    image: minio/minio:latest
+    platform: linux/arm64
     restart: unless-stopped
     ports:
-      - 5555:5555
+      - 9000:9000
+      - 9001:9001
     environment:
-      - MLFLOW_HOST=0.0.0.0
-      - MLFLOW_BACKEND_STORE_URI='postgres://postgres:postgres@postgres:5432/mlflow'
-      - MLFLOW_DEFAULT_ARTIFACT_ROOT=''
-      # other environmental variables as required
-    # volumes:
-    #   - ./filestore:/mnt/filestore
+      - MINIO_ROOT_USER=minio-root-user
+      - MINIO_ROOT_PASSWORD=minio-root-password
+      - MINIO_DEFAULT_BUCKETS=mlflow
+    volumes:
+      - s3:/data
 
-# volumes:
-#   db:
-#   # filestore:
+  # mlflow:
+  #   container_name: mlflow
+  #   image: ninerealmlabs/mlflow-server:latest
+  #   depends_on:
+  #     - db
+  #   restart: unless-stopped
+  #   ports:
+  #     - 5555:5555
+  #   environment:
+  #     - MLFLOW_HOST=0.0.0.0
+  #     - MLFLOW_BACKEND_STORE_URI=postgresql://postgres:postgres@postgres:5432/mlflow
+  #     # s3
+  #     - MLFLOW_DEFAULT_ARTIFACT_ROOT=s3://mlflow
+  #     - MLFLOW_S3_ENDPOINT_URL=<http://minio_endpoint:port>
+  #     - AWS_ACCESS_KEY_ID=<minio_id_key>
+  #     - AWS_SECRET_ACCESS_KEY=<minio_secret_key>
+  #     - AWS_DEFAULT_REGION=us-east
+  #     # other environmental variables as required
+
+volumes:
+  db:
+  s3:
