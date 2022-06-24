@@ -2,15 +2,16 @@
 
 [MLflow](https://mlflow.org) posits 6 scenarios for use:
 
-1. ~~MLflow on localhost~~
-2. ~~MLflow on localhost with SQLite~~
-3. ~~MLflow on localhost with Tracking Server~~
+1. MLflow on localhost
+2. MLflow on localhost with SQLite
+3. MLflow on localhost with Tracking Server
 4. MLflow with remote Tracking Server, backend and artifact stores
 5. MLflow Tracking Server enabled with proxied artifact storage access
 6. MLflow Tracking Server used exclusively as proxied access host for artifact storage access
 
-Given this creates a docker container to run an MLflow server,
-this repo will attempt to accomodate scenarios 4-6.
+Given this creates a docker container to run an MLflow server, this repo will prioritize scenarios 4-6.
+However, "local" storage in container directory `/mlruns` is possible, but will require using docker volume mounts
+to configure persistence and be fraught with permissions considerations.
 
 MLflow uses two components for storage: backend store and artifact store.
 The backend store persists MLflow entities (_runs_, parameters, metrics, tags, notes, metadata, etc), and
@@ -18,6 +19,13 @@ these data can be recorded to local files, to a SQLAlchemy compatible database, 
 
 The artifact store persists _artifacts_ (files, models, images, in-memory objects, or model summary, etc)
 to local files or a variety of remote file storage solutions.
+
+## Quickstart
+
+## Use `mlflow-server` as remote MLflow instance
+
+From a local python runtime with at least `mlflow`, `pandas`, and `scikit-learn` installed,
+run [try-mlflow.py](try-mlflow.py), replacing `tracking_uri` with the address of the running `mlflow-server` instance
 
 ## Configuration
 
