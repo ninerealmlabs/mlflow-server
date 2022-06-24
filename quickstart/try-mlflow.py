@@ -21,6 +21,12 @@ tracking_uri = "http://localhost:5555"
 mlflow.set_tracking_uri(tracking_uri)
 mlflow.set_experiment("iris-test")
 
+# os.environ['MLFLOW_DEFAULT_ARTIFACT_ROOT'] = 'mlflow-artifacts:/mlartifacts'
+os.environ['MLFLOW_DEFAULT_ARTIFACT_ROOT'] = 's3://mlflow'
+os.environ['MLFLOW_S3_ENDPOINT_URL'] = 'http://localhost:9000'
+os.environ['AWS_ACCESS_KEY_ID'] = 'miniomlflow'
+os.environ['AWS_SECRET_ACCESS_KEY'] = 'miniomlflow'
+
 with mlflow.start_run():
     print(f"{mlflow.get_artifact_uri()=}")
     print(f"{mlflow.get_registry_uri()=}")

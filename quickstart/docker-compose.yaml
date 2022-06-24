@@ -28,8 +28,7 @@ services:
   minio:
     container_name: minio
     image: minio/minio:latest
-    # platform: linux/amd64
-    command: server /data --console-address ":9001"
+    command: server /data --address ":9000" --console-address ":9001"
     restart: unless-stopped
     ports:
       - 9000:9000
@@ -37,7 +36,9 @@ services:
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER:?Error - MINIO_ROOT_USER must be provided in .env}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:?Error - MINIO_ROOT_PASSWORD must be provided in .env}
-      - MINIO_DEFAULT_BUCKETS=mlflow
+      # - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:?Error - AWS_ACCESS_KEY_ID must be provided in .env}
+      # - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:?Error - AWS_SECRET_ACCESS_KEY must be provided in .env}
+      - MINIO_SITE_REGION=us-east
     volumes:
       - s3:/data
     healthcheck:
@@ -50,21 +51,29 @@ services:
       timeout: 20s
       retries: 3
 
-  minio_buckets:
-    container_name: buckets
+  minio_config:
+    container_name: minio_config
     image: minio/mc:latest
-    # platform: linux/amd64
     depends_on:
       minio:
         condition: service_healthy
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:?Error - MINIO_ROOT_USER must be provided in .env}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:?Error - MINIO_ROOT_PASSWORD must be provided in .env}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:?Error - AWS_ACCESS_KEY_ID must be provided in .env}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:?Error - AWS_SECRET_ACCESS_KEY must be provided in .env}
+
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc config host add local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
-      /usr/bin/mc rm -r --force local/${BUCKET_NAME:-mlflow};
-      /usr/bin/mc mb local/${BUCKET_NAME:-mlflow};
-      /usr/bin/mc policy set private local/${BUCKET_NAME:-mlflow};
+      /usr/bin/mc alias set minio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      /usr/bin/mc admin config set minio site region=us-east && mc admin service restart minio;
+      /usr/bin/mc admin user add minio ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY};
+      /usr/bin/mc admin policy set minio readwrite user=${AWS_ACCESS_KEY_ID};
+      /usr/bin/mc rm -r --force minio/${BUCKET_NAME:-mlflow};
+      /usr/bin/mc mb minio/${BUCKET_NAME:-mlflow};
       exit 0;
       "
+    # /usr/bin/mc admin policy set public minio/${BUCKET_NAME:-mlflow};
 
   mlflow:
     image: ninerealmlabs/mlflow-server:latest
@@ -72,7 +81,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      minio_buckets:
+      minio_config:
         condition: service_completed_successfully
     restart: unless-stopped
     ports:
@@ -83,10 +92,11 @@ services:
       # s3
       - MLFLOW_DEFAULT_ARTIFACT_ROOT=s3://${BUCKET_NAME:-mlflow}
       - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
-      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER:?Error - MINIO_ROOT_USER must be provided in .env}
-      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD:? Error - MINIO_ROOT_PASSWORD must be provided in .env}
-      - AWS_DEFAULT_REGION=us-east
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:?Error - AWS_ACCESS_KEY_ID must be provided in .env}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:?Error - AWS_SECRET_ACCESS_KEY must be provided in .env}
+      # - AWS_DEFAULT_REGION=us-east
       # other environmental variables as required
+      - MLFLOW_SERVE_ARTIFACTS
 
 networks:
   default:

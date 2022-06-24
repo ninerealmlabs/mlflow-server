@@ -12,5 +12,6 @@ settings.json
 *.cache
 *.csv
 *.xml
+*.zip
 
 local/
