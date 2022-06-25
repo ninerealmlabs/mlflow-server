@@ -8,6 +8,7 @@ on:
       - develop/**
     paths:
       - docker
+  workflow_dispatch:
 
 env:
   PLATFORMS: linux/amd64,linux/arm64
