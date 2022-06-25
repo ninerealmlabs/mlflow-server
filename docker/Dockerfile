@@ -1,9 +1,7 @@
 FROM python:3.9-bullseye
 
-EXPOSE 5555
-
-RUN mkdir -p /mlruns
-VOLUME /mlruns
+# EXPOSE 5555
+EXPOSE 5000
 
 WORKDIR /
 COPY . /
@@ -21,7 +19,6 @@ RUN apt-get update -yq \
 RUN pip install --upgrade pip \
  && pip install --quiet \
    # --root-user-action=ignore \
-   # -r requirements.txt  \
    mlflow==1.26.1 \
    psycopg2 \
    pg8000 \
@@ -38,4 +35,4 @@ RUN pip install --upgrade pip \
 # CMD ["--backend-store-uri $MLFLOW_BACKEND_STORE_URI", \
 #      "--default-artifact-root $MLFLOW_DEFAULT_ARTIFACT_ROOT", \
 #      "--serve-artifacts"]
-ENTRYPOINT ["/bin/bash", "run.sh"]
+# ENTRYPOINT ["/bin/bash", "run.sh"]
