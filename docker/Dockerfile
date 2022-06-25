@@ -1,5 +1,13 @@
 FROM python:3.9-bullseye
 
+# Labels
+ARG BUILD_DATE
+ARG GIT_COMMIT
+ENV BUILD_DATE=${BUILD_DATE}
+ENV GIT_COMMIT=${GIT_COMMIT}
+LABEL maintainer="ninerealmlabs"
+LABEL build_date="${BUILD_DATE}"
+
 # EXPOSE 5555
 EXPOSE 5000
 
