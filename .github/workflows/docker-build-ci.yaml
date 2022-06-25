@@ -110,6 +110,14 @@ jobs:
           docker pull ${{ env.GH_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.FULLTAG }}
           docker inspect ${{ env.GH_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.FULLTAG }}
 
+    outputs:
+      IMAGE_NAME: ${{ env.IMAGE_NAME }}
+      BRANCH: ${{ steps.tag.outputs.BRANCH }}
+      SHA: ${{ steps.tag.outputs.SHA }}
+      TAG: ${{ steps.tag.outputs.TAG }}
+      FULLTAG: ${{ steps.tag.outputs.FULLTAG }}
+      PRODTAG: ${{ steps.tag.outputs.PRODTAG }}
+
   ### Push to DockerHub if main branch / "release"
   dockerhub:
     runs-on: ubuntu-latest
