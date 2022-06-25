@@ -56,7 +56,7 @@ jobs:
           SHA=${GITHUB_SHA:0:7}
 
           # extract mlflow version from dockerfile
-          TAG="$(grep 'mlflow==' docker/Dockerfile | sed s'|mlflow==||g' | xargs)"
+          TAG="$(grep 'mlflow==' docker/Dockerfile | xargs | sed s'|mlflow==||g' | sed s'|[[:space:]]||g')"
 
           PRODTAG="${TAG}-${SHA}"
           FULLTAG="${TAG}-${BRANCH}-${SHA}"
