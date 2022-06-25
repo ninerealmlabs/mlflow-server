@@ -6,6 +6,7 @@ services:
     image: bitnami/postgresql:latest
     container_name: postgres
     restart: unless-stopped
+    # network_mode: host
     ports:
       - 5432:5432
     environment:
@@ -30,6 +31,7 @@ services:
     image: minio/minio:latest
     # platform: linux/amd64
     restart: unless-stopped
+    # network_mode: host
     ports:
       - 9000:9000
       - 9001:9001
@@ -83,14 +85,21 @@ services:
       minio_config:
         condition: service_completed_successfully
     restart: unless-stopped
+    # network_mode: host
     ports:
-      - 5000:5000
+      - 5555:5000
     environment:
       - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:?Error - AWS_ACCESS_KEY_ID must be provided in .env}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:?Error - AWS_SECRET_ACCESS_KEY must be provided in .env}
-      # - AWS_DEFAULT_REGION=us-east
+      - AWS_DEFAULT_REGION=us-east
       # other environmental variables as required
+    # ### NOTE: uncomment for scenario 4
+    # command: >
+    #   mlflow server
+    #   --host 0.0.0.0
+    #   --backend-store-uri postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASS:-postgres}@postgres:5432/${DB_NAME:-mlflow}
+    #   --default-artifact-root s3://mlflow
     command: >
       mlflow server
       --host 0.0.0.0

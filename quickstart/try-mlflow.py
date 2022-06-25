@@ -22,7 +22,7 @@ mlflow.set_tracking_uri(tracking_uri)
 mlflow.set_experiment("iris-test")
 
 #%%
-### NOTE: env vars required for scenario 4 but not for scenario 5
+# ### NOTE: env vars required for scenario 4 but not for scenario 5
 # os.environ['MLFLOW_S3_ENDPOINT_URL'] = "http://localhost:9000"
 # os.environ['AWS_ACCESS_KEY_ID'] = "miniomlflow"
 # os.environ['AWS_SECRET_ACCESS_KEY'] = "miniomlflow"
