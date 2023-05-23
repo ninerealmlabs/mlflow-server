@@ -7,6 +7,7 @@ repos:
       - id: forbid-yml
         name: Forbid .yml file extensions (use .yaml)
         entry: YAML file extensions must be .yaml
+        stages: [commit, manual]
         language: fail
         files: \.yml$
         exclude: |
@@ -16,6 +17,7 @@ repos:
       - id: forbid-rej
         name: Forbid .rej file extensions from `copier update`
         entry: Forbid .rej file extensions from `copier update`
+        stages: [commit, manual]
         language: fail
         files: \.rej$
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -23,56 +25,57 @@ repos:
     hooks:
       - id: check-added-large-files
         args: [--maxkb=500000]
-        stages: [commit]
+        stages: [commit, manual]
       - id: check-case-conflict
-        stages: [commit]
+        stages: [commit, manual]
       - id: check-merge-conflict
-        stages: [commit]
+        stages: [commit, manual]
       - id: check-yaml
-        stages: [commit]
+        stages: [commit, manual]
       - id: end-of-file-fixer
         stages: [commit]
       - id: mixed-line-ending
         stages: [commit]
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
-        stages: [commit]
+        stages: [commit, manual]
   - repo: https://github.com/Lucas-C/pre-commit-hooks
     rev: "v1.5.1"
     hooks:
       - id: remove-crlf
-        stages: [commit]
+        stages: [commit, manual]
       - id: remove-tabs
-        stages: [commit]
+        stages: [commit, manual]
   - repo: https://github.com/sirosen/texthooks
     rev: "0.5.0"
     hooks:
       - id: fix-smartquotes
-        stages: [commit]
+        stages: [commit, manual]
       - id: fix-ligatures
-        stages: [commit]
+        stages: [commit, manual]
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: "v3.0.0-alpha.9-for-vscode"
     hooks:
       - id: prettier
-        stages: [commit]
+        stages: [commit, manual]
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: "v0.34.0"
     hooks:
       - id: markdownlint
         args: ["-f"]
-        stages: [commit]
+        stages: [commit, manual]
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.32.0
     hooks:
       - id: yamllint
         args: [-c=.yamllint.yaml]
-        stages: [commit]
+        stages: [commit, manual]
   # - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
   #   rev: 0.1.0
   #   hooks:
   #     - id: yamlfmt
   #       args: [--mapping, '2', --sequence, '4', --offset, '2', --preserve-quotes]
+  #       stages: [commit, ci]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
     rev: "v0.0.269"
@@ -107,4 +110,4 @@ repos:
           (?x)^(
             ^.*(typos\.toml)$
           )$
-        stages: [commit]
+        stages: [commit, manual]

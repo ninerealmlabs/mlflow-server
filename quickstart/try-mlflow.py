@@ -1,4 +1,4 @@
-#%%
+# %%
 import os
 
 import mlflow
@@ -11,17 +11,17 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-#%%
+# %%
 # load the iris dataset and split it into train and test sets
 X, y = load_iris(return_X_y=True)
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 
-#%%
+# %%
 tracking_uri = "http://localhost:5555"
 mlflow.set_tracking_uri(tracking_uri)
 mlflow.set_experiment("iris-test")
 
-#%%
+# %%
 # ### NOTE: env vars required for scenario 4 but not for scenario 5
 # os.environ['MLFLOW_S3_ENDPOINT_URL'] = "http://localhost:9000"
 # os.environ['AWS_ACCESS_KEY_ID'] = "miniomlflow"
@@ -35,7 +35,7 @@ mlflow.set_experiment("iris-test")
 # print(aws_env)
 
 
-#%%
+# %%
 with mlflow.start_run():
     print(f"{mlflow.get_artifact_uri()=}")
     print(f"{mlflow.get_registry_uri()=}")
@@ -53,7 +53,7 @@ with mlflow.start_run():
     pipe.fit(X_train, y_train)
 
     # preserve model object
-    mlflow.sklearn.log_model(pipe, f"pipeline_model")
+    mlflow.sklearn.log_model(pipe, "pipeline_model")
 
     # predict and assess
     y_predict = pipe.predict(X_test)

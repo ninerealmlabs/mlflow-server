@@ -31,12 +31,13 @@ jobs:
           pip install --upgrade pre-commit
 
       - name: Run pre-commit hooks ✅
-        run: SKIP=hadolint pre-commit run --all-files
+        run: pre-commit run --all-files --show-diff-on-failure --hook-stage=manual
 
       # linting multiple dockerfiles: https://github.com/hadolint/hadolint-action/issues/3
       - name: Lint Dockerfile ✅
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: "Dockerfile"
-        env:
-          HADOLINT_RECURSIVE: "true"
+          recursive: true
+        # env:
+        #   HADOLINT_RECURSIVE: "true"
