@@ -97,7 +97,7 @@ runs:
     ### https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md
     - name: Build image 🛠
       id: build
-      uses: docker/build-push-action@v3
+      uses: docker/build-push-action@v4
       with:
         builder: ${{ steps.buildx.outputs.name }}
         platforms: ${{ inputs.platforms }}
