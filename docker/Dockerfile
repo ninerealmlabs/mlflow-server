@@ -3,16 +3,23 @@ FROM python:3.9-bullseye
 # Labels
 ARG BUILD_DATE
 ARG GIT_COMMIT
+ARG VERSION
 ENV BUILD_DATE=${BUILD_DATE}
 ENV GIT_COMMIT=${GIT_COMMIT}
+ENV VERSION=${VERSION}
 LABEL maintainer="ninerealmlabs"
-LABEL build_date="${BUILD_DATE}"
+# hadolint ignore=DL3053
+LABEL build-date="${BUILD_DATE}"
+# hadolint ignore=DL3055
+LABEL git-commit="${GIT_COMMIT}"
+# hadolint ignore=DL3056
+LABEL version="${VERSION}"
+LABEL description="MLFlow-server"
 
 # EXPOSE 5555
 EXPOSE 5000
 
 WORKDIR /
-COPY . /
 
 RUN apt-get update -yq \
  && apt-get upgrade -yq \
@@ -24,21 +31,12 @@ RUN apt-get update -yq \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --upgrade pip \
- && pip install --quiet \
-   # --root-user-action=ignore \
-   mlflow==1.26.1 \
-   psycopg2 \
-   pg8000 \
-   azure-identity \
-   azure-storage-common \
-   azure-storage-blob \
-   azure-storage-file-share \
-   boto3 \
-   google-cloud-storage \
-   pysftp \
+COPY requirements.txt ./
+RUN pip install --no-cache-dir --upgrade pip \
+ && pip install --no-cache-dir --quiet -r requirements.txt \
  && pip cache purge
 
+COPY run.sh ./
 # ENTRYPOINT mlflow server --host 0.0.0.0 --port 5555
 # CMD ["--backend-store-uri $MLFLOW_BACKEND_STORE_URI", \
 #      "--default-artifact-root $MLFLOW_DEFAULT_ARTIFACT_ROOT", \

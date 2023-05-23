@@ -1,0 +1,10 @@
+mlflow==1.26.1
+psycopg2
+pg8000
+azure-identity
+azure-storage-common
+azure-storage-blob
+azure-storage-file-share
+boto3
+google-cloud-storage
+pysftp

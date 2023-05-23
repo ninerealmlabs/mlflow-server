@@ -55,8 +55,8 @@ jobs:
           BRANCH=$(echo ${GITHUB_REF} | sed s'|refs/heads/||' | sed s'|/|.|')
           SHA=${GITHUB_SHA:0:7}
 
-          # extract mlflow version from dockerfile
-          TAG="$(grep 'mlflow==' docker/Dockerfile | xargs | sed s'|mlflow==||g' | sed s'|[[:space:]]||g')"
+          # extract mlflow version from requirements.txt
+          TAG="$(grep 'mlflow==' docker/requirements.txt | xargs | sed s'|mlflow==||g' | sed s'|[[:space:]]||g')"
 
           PRODTAG="${TAG}-${SHA}"
           FULLTAG="${TAG}-${BRANCH}-${SHA}"
@@ -95,6 +95,7 @@ jobs:
           build-args: |
             GIT_COMMIT=${{ steps.tag.outputs.SHA }}
             BUILD_DATE=${{ steps.date.outputs.DATE }}
+            VERSION=${{ steps.tag.outputs.TAG }}
           # cache-from: type=gha
           cache-to: type=registry,ref=${{ env.GH_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
           push: true
