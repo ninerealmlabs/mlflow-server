@@ -2,12 +2,16 @@
 # .azureml
 # .eggs
 # .ipynb_checkpoints
+# .nox
 # .obsidian
 # .pytest_cache
 # .tox
-.vscode
+.vscode/
 .**/
 dist/
 
 *.md
-*.y*ml
+
+# ignore local .env from versioning
+.env
+.envrc

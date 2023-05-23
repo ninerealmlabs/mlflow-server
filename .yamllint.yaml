@@ -10,14 +10,15 @@ rules:
     min-spaces-inside: 0
     max-spaces-inside: 0
   comments:
-    min-spaces-from-content: 1
-  comments-indentation: enable
+    min-spaces-from-content: 1 # align prettier: https://github.com/prettier/prettier/pull/10926
+  comments-indentation: disable
   indentation:
-    spaces: 2
-    indent-sequences: true
+    spaces: consistent
+    indent-sequences: consistent
+    check-multi-line-strings: false
   line-length: disable
-  quoted-strings:
-    quote-type: any
-    required: only-when-needed
-  # truthy:
-  #   allowed-values: ['true', 'false', on]
+  # quoted-strings:
+  #   quote-type: any
+  #   required: only-when-needed
+  truthy:
+    allowed-values: ["true", "false"]
