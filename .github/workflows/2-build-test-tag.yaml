@@ -27,10 +27,6 @@ on: # yamllint disable-line rule:truthy
         description: Image name
         required: true
         type: string
-      python_version:
-        description: Python version (<major.minor.*>)
-        required: true
-        type: string
       platforms:
         description: Image platform architectures
         required: true
@@ -48,9 +44,6 @@ on: # yamllint disable-line rule:truthy
         required: true
         type: string
     outputs:
-      python_tag:
-        description: Python version tag (python-<major.minor>)
-        value: ${{ jobs.build-image.outputs.python_tag }}
       git_tag:
         description: Git short hash
         value: ${{ jobs.build-image.outputs.git_tag }}
@@ -75,10 +68,6 @@ on: # yamllint disable-line rule:truthy
         default: '' # doesn't actually pass default; hacked in in called action
       image_name:
         description: Image name
-        required: true
-        type: string
-      python_version:
-        description: Python version (<major.minor.*>)
         required: true
         type: string
       platforms:
@@ -108,8 +97,8 @@ jobs:
     # map step outputs to job outputs
     outputs:
       # yamllint disable rule:colons
-      python_tag:   ${{ steps.build.outputs.python_tag }}
       git_tag:      ${{ steps.build.outputs.git_tag }}
+      mlflow_tag:   ${{ steps.build.outputs.mlflow_tag }}
       image_digest: ${{ steps.build.outputs.image_digest }}
       # yamllint enable
 
@@ -143,7 +132,6 @@ jobs:
           source_tag:     ${{ inputs.source_tag }}
           source_digest:  ${{ inputs.source_digest }}
           image_name:     ${{ inputs.image_name }}
-          python_version: ${{ inputs.python_version }}
           platforms:      ${{ inputs.platforms }}
           gh_registry:    ${{ inputs.gh_registry }}
           owner:          ${{ inputs.owner }}
