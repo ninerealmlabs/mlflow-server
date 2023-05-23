@@ -26,6 +26,9 @@ WORKDIR /
 RUN apt-get update -yq \
  && apt-get upgrade -yq \
  && apt-get install -yq \
+    gcc \
+    g++ \
+    libpq-dev \
     libyaml-cpp-dev \
     libyaml-dev \
     nano \
