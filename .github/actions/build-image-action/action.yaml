@@ -1,0 +1,126 @@
+---
+name: Build image and cache to
+description: Build image using docker buildx for multi-arch support
+
+inputs:
+  source_image:
+    description: Parent/Source full image name (registry/image)
+    required: true
+  source_tag:
+    description: Tag of source image
+    required: true
+    # default: 'latest' # doesn't actually pass default; hacked in in called action
+  source_digest:
+    description: Digest of source image
+    required: false
+    default: '' # doesn't actually pass default; hacked in in called action
+  image_name:
+    description: Image name
+    required: true
+  python_version:
+    description: python version
+    required: true
+  platforms:
+    description: Image platform architectures
+    required: true
+  gh_registry:
+    description: Github registry (ghcr.io/<owner>)
+    required: true
+  owner:
+    description: Registry name
+    required: true
+outputs:
+  python_tag:
+    description: Python version tag (python-<major.minor>)
+    value: ${{ steps.tags.outputs.python_tag }}
+  git_tag:
+    description: Git short hash
+    value: ${{ steps.tags.outputs.git_tag }}
+  image_digest:
+    description: Image digest
+    value: ${{ steps.build.outputs.digest }}
+
+runs:
+  using: composite
+  steps:
+
+    - name: Set up QEMU 🦤
+      uses: docker/setup-qemu-action@v2
+
+    - name: Set up Docker Buildx 🐳
+      id: buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Parse source 🕵️
+      id: source
+      shell: bash
+      run: |
+        echo "SOURCE_IMAGE: ${SOURCE_IMAGE}"
+        echo "SOURCE_TAG: ${SOURCE_TAG}"
+        echo "SOURCE_DIGEST: ${SOURCE_DIGEST}"
+        # ------------------------------------------------------------------
+        SOURCE_FULLNAME="${SOURCE_IMAGE}:${SOURCE_TAG}"
+        [[ "${SOURCE_DIGEST}" == sha256* ]] && SOURCE_FULLNAME="${SOURCE_FULLNAME}@${SOURCE_DIGEST}"
+        # ------------------------------------------------------------------
+        echo "SOURCE_FULLNAME: ${SOURCE_FULLNAME}"
+        # ------------------------------------------------------------------
+        echo "source_fullname=${SOURCE_FULLNAME}" >> $GITHUB_OUTPUT
+      env:
+        SOURCE_IMAGE: ${{ inputs.source_image }}
+        SOURCE_TAG: ${{ inputs.source_tag }}
+        SOURCE_DIGEST: ${{ inputs.source_digest }}
+
+    - name: Get current date 🗓
+      id: date
+      shell: bash
+      run: |
+        DATE=$(date +'%Y%m%d')
+        echo "DATE: ${DATE}"
+        echo "date=${DATE}" >> $GITHUB_OUTPUT
+
+    - name: Create tags 🏷
+      id: tags
+      shell: bash
+      run: |
+        GIT_TAG="${GITHUB_SHA:0:7}"
+        PYTHON_TAG="python-${PYTHON_VERSION/'.*'/}"
+        # ------------------------------------------------------------------
+        echo "GIT_TAG: ${GIT_TAG}"
+        echo "PYTHON_TAG: ${PYTHON_TAG}"
+        # ------------------------------------------------------------------
+        echo "git_tag=${GIT_TAG}" >> $GITHUB_OUTPUT
+        echo "python_tag=${PYTHON_TAG}" >> $GITHUB_OUTPUT
+      env:
+        PYTHON_VERSION: ${{ inputs.python_version }}
+
+    ### https://github.com/docker/build-push-action
+    ### https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md
+    - name: Build image 🛠
+      id: build
+      uses: docker/build-push-action@v3
+      with:
+        builder: ${{ steps.buildx.outputs.name }}
+        platforms: ${{ inputs.platforms }}
+        context: src/${{ inputs.image_name }}
+        # file: ./Dockerfile
+        build-args: |
+          SOURCE_IMAGE=${{ steps.source.outputs.source_fullname }}
+          PYTHON_VERSION=${{ inputs.python_version }}
+          GIT_COMMIT=${{ steps.tags.outputs.git_tag }}
+          BUILD_DATE=${{ steps.date.outputs.date }}
+        # cache-from: type=gha
+        cache-to: type=registry,ref=${{ inputs.gh_registry }}/${{ inputs.image_name }}:buildcache,mode=max
+        push: true
+        tags: |
+          ${{ inputs.gh_registry }}/${{ inputs.image_name }}:${{ steps.tags.outputs.python_tag }}
+          ${{ inputs.gh_registry }}/${{ inputs.image_name }}:${{ steps.tags.outputs.python_tag }}-${{ steps.tags.outputs.git_tag }}
+
+    - name: Inspect image digest 🔬
+      shell: bash
+      run: |
+        echo "IMAGE DIGEST: ${{ steps.build.outputs.digest }}"
+
+    - name: Inspect new image 🔬
+      shell: bash
+      run: |
+        docker pull ${{ inputs.gh_registry }}/${{ inputs.image_name }}@${{ steps.build.outputs.digest }}
