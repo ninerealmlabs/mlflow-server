@@ -4,16 +4,9 @@ name: docker-build-CI
 on:
   push:
     branches:
-      # - main
-      - develop/**
-    paths:
-      - docker
-  pull_request:
-    # Sequence of patterns matched against refs/heads
-    branches:
       - main
     paths:
-      - docker
+      - docker/*
   workflow_dispatch:
 
 # yamllint disable rule:colons
@@ -41,11 +34,10 @@ jobs:
     needs: [export-envs]
     uses: ./.github/workflows/2-build-test-tag.yaml
     with:
-      source_image:   jupyter/minimal-notebook                    # <-- UPDATE ###
-      # source_tag:     latest                                    # <-- UPDATE ###
+      source_image:   python                                      # <-- UPDATE ###
+      source_tag:     3.9-slim-bullseye                           # <-- UPDATE ###
       # source_digest:  ''                                        # <-- UPDATE ###
-      image_name:     base-env                                    # <-- UPDATE ###
-      python_version: ${{ inputs.python_version }}
+      image_name:     mlflow-server                               # <-- UPDATE ###
       platforms:      ${{ inputs.platforms }}
       gh_registry:    ${{ inputs.gh_registry }}
       # d_registry:     ${{ inputs.d_registry }}
