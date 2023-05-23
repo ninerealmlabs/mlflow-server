@@ -1,0 +1,42 @@
+---
+name: Run pre-commit hooks
+
+on: # yamllint disable-line rule:truthy
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run-hooks:
+    name: Run pre-commit hooks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo 🛒
+        uses: actions/checkout@v3
+
+      - name: Set Up Python 🐍
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+
+      - name: Install pre-commit 📦
+        run: |
+          pip install --upgrade pip
+          pip install --upgrade pre-commit
+
+      - name: Run pre-commit hooks ✅
+        run: SKIP=hadolint pre-commit run --all-files
+
+      # linting multiple dockerfiles: https://github.com/hadolint/hadolint-action/issues/3
+      - name: Lint Dockerfile ✅
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: "Dockerfile"
+        env:
+          HADOLINT_RECURSIVE: "true"

@@ -1,0 +1,193 @@
+---
+name: Build Test Tag
+# --- Description ------------------------------------------------------------
+# - Builds (multi-arch) docker image & caches to ghcr.io (build-image.yaml)
+# - Runs test (test-image.yaml)
+# - Retags & pushes to docker registry (tag-image.yaml)
+# ----------------------------------------------------------------------------
+
+on: # yamllint disable-line rule:truthy
+  workflow_call:
+    inputs:
+      source_image:
+        description: Parent/Source image name (repository/name)
+        required: true
+        type: string
+      source_tag:
+        description: Tag of source image
+        required: false
+        type: string
+        default: 'latest' # doesn't actually pass default; hacked in in called action
+      source_digest:
+        description: Digest of source image
+        required: false
+        type: string
+        default: '' # doesn't actually pass default; hacked in in called action
+      image_name:
+        description: Image name
+        required: true
+        type: string
+      python_version:
+        description: Python version (<major.minor.*>)
+        required: true
+        type: string
+      platforms:
+        description: Image platform architectures
+        required: true
+        type: string
+      gh_registry:
+        description: Github registry (ghcr.io/<owner>)
+        required: true
+        type: string
+      # d_registry:
+      #   description: Docker registry (docker.io/<owner>)
+      #   required: true
+      #   type: string
+      owner:
+        description: Registry name
+        required: true
+        type: string
+    outputs:
+      python_tag:
+        description: Python version tag (python-<major.minor>)
+        value: ${{ jobs.build-image.outputs.python_tag }}
+      git_tag:
+        description: Git short hash
+        value: ${{ jobs.build-image.outputs.git_tag }}
+      image_digest:
+        description: Image digest
+        value: ${{ jobs.build-image.outputs.image_digest }}
+  workflow_dispatch:
+    inputs:
+      source_image:
+        description: Parent/Source image name (repository/name)
+        required: true
+        type: string
+      source_tag:
+        description: Tag of source image
+        required: false
+        type: string
+        default: 'latest' # doesn't actually pass default; hacked in in called action
+      source_digest:
+        description: Digest of source image
+        required: false
+        type: string
+        default: '' # doesn't actually pass default; hacked in in called action
+      image_name:
+        description: Image name
+        required: true
+        type: string
+      python_version:
+        description: Python version (<major.minor.*>)
+        required: true
+        type: string
+      platforms:
+        description: Image platform architectures
+        required: true
+        type: string
+      gh_registry:
+        description: Github registry (ghcr.io/<owner>)
+        required: true
+        type: string
+      # d_registry:
+      #   description: Docker registry (docker.io/<owner>)
+      #   required: true
+      #   type: string
+      owner:
+        description: Registry name
+        required: true
+        type: string
+
+jobs:
+  build-image:
+    # runs-on: self-hosted
+    runs-on: ubuntu-latest
+
+    # continue-on-error: true
+
+    # map step outputs to job outputs
+    outputs:
+      # yamllint disable rule:colons
+      python_tag:   ${{ steps.build.outputs.python_tag }}
+      git_tag:      ${{ steps.build.outputs.git_tag }}
+      image_digest: ${{ steps.build.outputs.image_digest }}
+      # yamllint enable
+
+    steps:
+      # https://stackoverflow.com/questions/70483902/how-to-actually-clean-up-the-repository-on-self-hosted-runner-after-github-actio
+      - name: Cleanup build folder 🧹
+        shell: bash
+        run: |
+          cd ${{ github.workspace }}
+          ls -la ./
+          rm -rf ./* || true
+          rm -rf ./.??* || true
+          ls -la ./
+
+      - name: Checkout Repo 🛒
+        uses: actions/checkout@v3
+
+      - name: Login to GitHub Container Registry ✅
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Image 🛠
+        id: build
+        uses: ./.github/actions/build-image-action
+        with:
+          # yamllint disable rule:colons
+          source_image:   ${{ inputs.source_image }}
+          source_tag:     ${{ inputs.source_tag }}
+          source_digest:  ${{ inputs.source_digest }}
+          image_name:     ${{ inputs.image_name }}
+          python_version: ${{ inputs.python_version }}
+          platforms:      ${{ inputs.platforms }}
+          gh_registry:    ${{ inputs.gh_registry }}
+          owner:          ${{ inputs.owner }}
+          # yamllint enable
+
+      # # translate step outputs to job outputs
+      # - name: Pass outputs 📬
+      #   id: outputs
+      #   shell: bash
+      #   run: |
+      #     PYTHON_TAG="${{ steps.build.outputs.python_tag }}"
+      #     GIT_TAG="${{ steps.build.outputs.git_tag }}"
+      #     IMAGE_DIGEST="${{ steps.build.outputs.image_digest }}"
+      #     # ------------------------------------------------------------------
+      #     echo "PYTHON_TAG: ${PYTHON_TAG}"
+      #     echo "GIT_TAG: ${GIT_TAG}"
+      #     echo "IMAGE_DIGEST: ${IMAGE_DIGEST}"
+      #     # ------------------------------------------------------------------
+      #     echo "python_tag=${PYTHON_TAG}" >> $GITHUB_OUTPUT
+      #     echo "git_tag=${GIT_TAG}" >> $GITHUB_OUTPUT
+      #     echo "image_digest=${IMAGE_DIGEST}" >> $GITHUB_OUTPUT
+
+      # - name: Test Image 🧪
+      #   id: test
+      #   uses: ./.github/actions/test-image-action
+      #   with:
+      #     gh_registry: ${{ inputs.gh_registry }}
+      #     owner: ${{ inputs.owner }}
+      #     image_name: ${{ inputs.image_name }}
+      #     image_digest: ${{ steps.build.outputs.digest }}
+
+      # ### push to registry on main branch only
+      # - name: Login to DockerHub ✅
+      #   if: github.ref_name == 'main'
+      #   uses: docker/login-action@v2
+      #   with:
+      #     username: ${{ secrets.DOCKER_USER }}
+      #     password: ${{ secrets.DOCKER_TOKEN }}
+
+      # - if: github.ref_name == 'main'
+      #   name: Tag & Push image to docker 🏷
+      #   uses: akhilerm/tag-push-action@v2.1.0
+      #   with:
+      #     src: ${{ inputs.gh_registry }}/${{ inputs.image_name }}@${{ steps.build.outputs.image_digest }}
+      #     dst: |
+      #       ${{ inputs.d_registry }}/${{ inputs.image_name }}:${{ steps.build.outputs.python_tag }}
+      #       ${{ inputs.d_registry }}/${{ inputs.image_name }}:${{ steps.build.outputs.python_tag }}-${{ steps.build.outputs.git_tag }}
