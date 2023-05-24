@@ -53,7 +53,7 @@ version: 3
 services:
 ...
   mlflow:
-    image: ninerealmlabs/mlflow-server:latest
+    image: ghcr.io/ninerealmlabs/mlflow-server:<latest>
     ...
     command: >
       mlflow server
@@ -69,7 +69,7 @@ version: 3
 services:
 ...
   mlflow:
-    image: ninerealmlabs/mlflow-server:latest
+    image: ghcr.io/ninerealmlabs/mlflow-server:<latest>
     ...
     command: >
       mlflow server
