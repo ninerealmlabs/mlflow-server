@@ -54,7 +54,7 @@ jobs:
     with:
       # yamllint disable rule:colons
       source_image:   python                                      # <-- UPDATE ###
-      source_tag:     3.9-slim-bullseye                           # <-- UPDATE ###
+      source_tag:     3.10-slim-bullseye                          # <-- UPDATE ###
       # source_digest:  ''                                        # <-- UPDATE ###
       image_name:     mlflow-server
       platforms:      ${{ needs.export-envs.outputs.platforms }}
