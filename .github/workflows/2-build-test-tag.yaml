@@ -43,13 +43,11 @@ on: # yamllint disable-line rule:truthy
         description: Registry name
         required: true
         type: string
-    outputs:
-      git_tag:
-        description: Git short hash
-        value: ${{ jobs.build-image.outputs.git_tag }}
-      image_digest:
-        description: Image digest
-        value: ${{ jobs.build-image.outputs.image_digest }}
+      version:
+        description: MLFlow semver tag
+        required: true
+        type: string
+
   workflow_dispatch:
     inputs:
       source_image:
@@ -86,22 +84,15 @@ on: # yamllint disable-line rule:truthy
         description: Registry name
         required: true
         type: string
+      version:
+        description: MLFlow semver tag
+        required: true
+        type: string
 
 jobs:
   build-image:
     # runs-on: self-hosted
     runs-on: ubuntu-latest
-
-    # continue-on-error: true
-
-    # map step outputs to job outputs
-    outputs:
-      # yamllint disable rule:colons
-      git_tag:      ${{ steps.build.outputs.git_tag }}
-      mlflow_tag:   ${{ steps.build.outputs.mlflow_tag }}
-      image_digest: ${{ steps.build.outputs.image_digest }}
-      # yamllint enable
-
     steps:
       # https://stackoverflow.com/questions/70483902/how-to-actually-clean-up-the-repository-on-self-hosted-runner-after-github-actio
       - name: Cleanup build folder 🧹
@@ -135,6 +126,7 @@ jobs:
           platforms:      ${{ inputs.platforms }}
           gh_registry:    ${{ inputs.gh_registry }}
           owner:          ${{ inputs.owner }}
+          version:        ${{ inputs.version }}
           # yamllint enable
 
       # # translate step outputs to job outputs

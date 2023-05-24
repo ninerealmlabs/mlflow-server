@@ -1,5 +1,5 @@
 ---
-name: docker-build-CI
+name: CI Runner
 
 on:
   push:
@@ -15,6 +15,7 @@ env: # define 'static' vars here
   gh_registry: ghcr.io/ninerealmlabs
   # d_registry:  docker.io/ninerealmlabs
   owner:       ninerealmlabs
+# yamllint enable
 
 jobs:
   # "Any environment variables set in an env context defined at the workflow level in the caller workflow
@@ -23,23 +24,62 @@ jobs:
     # runs-on: self-hosted
     runs-on: ubuntu-latest
     outputs:
+      # yamllint disable rule:colons
       platforms:   ${{ env.platforms }}
       gh_registry: ${{ env.gh_registry }}
       # d_registry:  ${{ env.d_registry }}
       owner:       ${{ env.owner }}
+      version:     ${{ steps.version.outputs.version }}
+      # yamllint enable
     steps:
       - run: echo "Exposing env vars to downstream jobs 📬"
+
+      - name: Checkout Repo 🛒
+        uses: actions/checkout@v3
+
+      - name: Get MLFlow version 🏷
+        id: version
+        shell: bash
+        run: |
+          # extract mlflow version from requirements.txt
+          VERSION="$(grep 'mlflow==' docker/requirements.txt | xargs | sed s'|mlflow==||g' | sed s'|[[:space:]]||g')"
+          # ------------------------------------------------------------------
+          echo "VERSION: ${VERSION}"
+          # ------------------------------------------------------------------
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
   build:
     needs: [export-envs]
     uses: ./.github/workflows/2-build-test-tag.yaml
     with:
+      # yamllint disable rule:colons
       source_image:   python                                      # <-- UPDATE ###
       source_tag:     3.9-slim-bullseye                           # <-- UPDATE ###
       # source_digest:  ''                                        # <-- UPDATE ###
-      image_name:     mlflow-server                               # <-- UPDATE ###
+      image_name:     mlflow-server
       platforms:      ${{ needs.export-envs.outputs.platforms }}
       gh_registry:    ${{ needs.export-envs.outputs.gh_registry }}
       # d_registry:     ${{ inputs.d_registry }}
       owner:          ${{ needs.export-envs.outputs.owner }}
+      version:        ${{ needs.export-envs.outputs.version }}
+      # yamllint enable
     secrets: inherit
+
+  release:
+    needs: [export-envs, build]
+    if: ${{ needs.build.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create tag
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const { VERSION } = process.env
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${VERSION}`,
+              sha: context.sha
+            })
+        env:
+          VERSION: ${{ needs.export-envs.outputs.version }}

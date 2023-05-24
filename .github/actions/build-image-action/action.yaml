@@ -26,10 +26,11 @@ inputs:
   owner:
     description: Registry name
     required: true
+  version:
+    description: MLFlow semver tag
+    required: true
+
 outputs:
-  git_tag:
-    description: Git short hash
-    value: ${{ steps.tags.outputs.git_tag }}
   image_digest:
     description: Image digest
     value: ${{ steps.build.outputs.digest }}
@@ -77,14 +78,11 @@ runs:
       shell: bash
       run: |
         GIT_TAG="${GITHUB_SHA:0:7}"
-        # extract mlflow version from requirements.txt
-        MLFLOW_TAG="$(grep 'mlflow==' docker/requirements.txt | xargs | sed s'|mlflow==||g' | sed s'|[[:space:]]||g')"
         # ------------------------------------------------------------------
         echo "GIT_TAG: ${GIT_TAG}"
-        echo "MLFLOW_TAG: ${MLFLOW_TAG}"
         # ------------------------------------------------------------------
         echo "git_tag=${GIT_TAG}" >> $GITHUB_OUTPUT
-        echo "mlflow_tag=${MLFLOW_TAG}" >> $GITHUB_OUTPUT
+
 
     ### https://github.com/docker/build-push-action
     ### https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md
@@ -99,14 +97,14 @@ runs:
         build-args: |
           SOURCE_IMAGE=${{ steps.source.outputs.source_fullname }}
           GIT_COMMIT=${{ steps.tags.outputs.git_tag }}
-          VERSION=${{ steps.tags.outputs.mlflow_tag }}
+          VERSION=${{ inputs.version }}
           BUILD_DATE=${{ steps.date.outputs.date }}
         # cache-from: type=gha
         cache-to: type=registry,ref=${{ inputs.gh_registry }}/${{ inputs.image_name }}:buildcache,mode=max
         push: true
         tags: |
-          ${{ inputs.gh_registry }}/${{ inputs.image_name }}:${{ steps.tags.outputs.mlflow_tag }}
-          ${{ inputs.gh_registry }}/${{ inputs.image_name }}:${{ steps.tags.outputs.mlflow_tag }}-${{ steps.tags.outputs.git_tag }}
+          ${{ inputs.gh_registry }}/${{ inputs.image_name }}:${{ inputs.version }}
+          ${{ inputs.gh_registry }}/${{ inputs.image_name }}:${{ inputs.version }}-${{ steps.tags.outputs.git_tag }}
 
     - name: Inspect image digest 🔬
       shell: bash
