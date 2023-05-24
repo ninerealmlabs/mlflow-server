@@ -1,4 +1,4 @@
-mlflow==2.2.2
+mlflow==2.3.1
 azure-identity
 azure-storage-common
 azure-storage-blob
