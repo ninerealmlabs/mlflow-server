@@ -18,7 +18,6 @@ LABEL git-commit="${GIT_COMMIT}"
 LABEL version="${VERSION}"
 LABEL description="MLFlow-server"
 
-# EXPOSE 5555
 EXPOSE 5000
 
 WORKDIR /
@@ -42,7 +41,7 @@ RUN pip install --no-cache-dir --upgrade pip \
  && pip cache purge
 
 COPY run.sh ./
-# ENTRYPOINT mlflow server --host 0.0.0.0 --port 5555
+# ENTRYPOINT mlflow server --host 0.0.0.0 --port 5000
 # CMD ["--backend-store-uri $MLFLOW_BACKEND_STORE_URI", \
 #      "--default-artifact-root $MLFLOW_DEFAULT_ARTIFACT_ROOT", \
 #      "--serve-artifacts"]
