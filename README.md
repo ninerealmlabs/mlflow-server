@@ -138,3 +138,9 @@ MLFLOW_DEFAULT_ARTIFACT_ROOT="sftp://<user>@<host/path/to/directory>"
 # may need to use symlinks or remount the client in order to enforce this property.
 MLFLOW_DEFAULT_ARTIFACT_ROOT="<path>"
 ```
+
+## Database migrations
+
+```sh
+mlflow db upgrade "$MLFLOW_BACKEND_STORE_URI"
+```
