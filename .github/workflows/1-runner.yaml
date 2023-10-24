@@ -42,7 +42,7 @@ jobs:
         shell: bash
         run: |
           # extract mlflow version from requirements.txt
-          VERSION="$(grep 'mlflow==' docker/requirements.txt | xargs | sed s'|mlflow==||g' | sed s'|[[:space:]]||g')"
+          VERSION="$(grep 'mlflow' docker/requirements.txt | xargs | sed s'|^.*==||g' | sed s'|[[:space:]]||g')"
           # ------------------------------------------------------------------
           echo "VERSION: ${VERSION}"
           # ------------------------------------------------------------------
