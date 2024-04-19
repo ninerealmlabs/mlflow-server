@@ -65,7 +65,7 @@ repos:
         args: ["-f"]
         stages: [commit, manual]
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.33.0
+    rev: v1.35.1
     hooks:
       - id: yamllint
         args: [-c=.yamllint.yaml]
