@@ -85,7 +85,7 @@ repos:
         stages: [commit, manual]
 
   - repo: https://github.com/psf/black
-    rev: "24.4.0"
+    rev: "24.4.2"
     hooks:
       - id: black
         stages: [commit, manual]
