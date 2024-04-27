@@ -84,12 +84,6 @@ repos:
         args: [--fix]
         stages: [commit, manual]
 
-  - repo: https://github.com/psf/black
-    rev: "24.4.2"
-    hooks:
-      - id: black
-        stages: [commit, manual]
-
   - repo: https://github.com/petalmd/dockerfile-pre-commit
     rev: v1.0
     hooks:
