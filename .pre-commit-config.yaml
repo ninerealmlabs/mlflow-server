@@ -78,7 +78,7 @@ repos:
   #       stages: [commit, ci]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
-    rev: "v0.7.1"
+    rev: "v0.7.0"
     hooks:
       - id: ruff
         args: [--fix]
@@ -95,7 +95,7 @@ repos:
   ### in order for typos pre-commit hook to read it.
   ### In this case, comment out this block until ".typos.toml" has been committed successfully
   - repo: https://github.com/crate-ci/typos
-    rev: v1.26.0
+    rev: v1.26.8
     hooks:
       - id: typos
         # args: []
