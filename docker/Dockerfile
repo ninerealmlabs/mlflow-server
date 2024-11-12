@@ -20,6 +20,8 @@ LABEL description="MLFlow-server"
 
 EXPOSE 5000
 
+RUN mkdir -p /mlflow/mlruns && chmod -R a+wrx /mlflow/
+VOLUME /mlflow
 WORKDIR /
 
 RUN apt-get update -yq \
