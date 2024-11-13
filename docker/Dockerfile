@@ -1,4 +1,4 @@
-ARG SOURCE_IMAGE=python:3.10-slim-bullseye
+ARG SOURCE_IMAGE=python:3.11-slim-bullseye
 # hadolint ignore=DL3006
 FROM "${SOURCE_IMAGE}"
 
@@ -18,10 +18,11 @@ LABEL git-commit="${GIT_COMMIT}"
 LABEL version="${VERSION}"
 LABEL description="MLFlow-server"
 
+RUN groupadd --gid 1001 mlflow \
+ && useradd --id 1001 --gid mlflow --shell /bin/bash --create-home mlflow
+
 EXPOSE 5000
 
-RUN mkdir -p /mlflow/mlruns && chmod -R a+wrx /mlflow/
-VOLUME /mlflow
 WORKDIR /
 
 RUN apt-get update -yq \
@@ -42,7 +43,9 @@ RUN pip install --no-cache-dir --upgrade pip \
  && pip install --no-cache-dir --quiet -r requirements.txt \
  && pip cache purge
 
-COPY run.sh ./
+USER 1001
+CMD ["bash"]
+# COPY run.sh ./
 # ENTRYPOINT mlflow server --host 0.0.0.0 --port 5000
 # CMD ["--backend-store-uri $MLFLOW_BACKEND_STORE_URI", \
 #      "--default-artifact-root $MLFLOW_DEFAULT_ARTIFACT_ROOT", \
