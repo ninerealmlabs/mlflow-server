@@ -67,7 +67,7 @@ jobs:
 
   release:
     needs: [export-envs, build]
-    if: ${{ needs.build.result == 'success' }}
+    if: ${{ needs.build.result == 'success' }} &&  github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Create tag
