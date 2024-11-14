@@ -2,10 +2,11 @@
 failure-threshold: info # name of threshold level (error | warning | info | style | ignore | none)
 label-schema:
   maintainer: text
-  build-date: rfc3339
-  git-commit: hash
-  version: semver
-  description: text
+  org.opencontainers.image.build-date: rfc3339
+  org.opencontainers.image.git-commit: hash
+  org.opencontainers.image.version: semver
+  org.opencontainers.image.title: text
+  org.opencontainers.image.description: text
 strict-labels: false
 ignored:
   - DL3008 # pin versions in apt

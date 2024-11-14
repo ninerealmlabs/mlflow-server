@@ -1,4 +1,4 @@
-mlflow[gateway]==2.17.2
+mlflow[core,gateway]==2.17.2
 azure-identity
 azure-storage-common
 azure-storage-blob

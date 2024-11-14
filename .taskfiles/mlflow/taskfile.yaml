@@ -1,0 +1,23 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  PYTHON_BIN: python3
+  QUICKSTART_REQUIREMENTS_FILE: "{{ .ROOT_DIR }}/quickstart/requirements.txt"
+
+tasks:
+
+  venv:
+    desc: Set up virtual environment
+    cmds:
+      - "python3 -m venv {{ .VIRTUAL_ENV }}"
+      - "{{ .VIRTUAL_ENV }}/bin/python3 -m pip install --upgrade pip setuptools wheel"
+      - '{{ .VIRTUAL_ENV }}/bin/python3 -m pip install --upgrade --requirement "{{ .QUICKSTART_REQUIREMENTS_FILE }}"'
+    sources:
+      - "{{ .QUICKSTART_REQUIREMENTS_FILE }}"
+    generates:
+      - "{{ .VIRTUAL_ENV }}/pyvenv.cfg"
+    preconditions:
+      - which python3
+      - { msg: "Missing Pip requirements file", sh: "test -f {{ .QUICKSTART_REQUIREMENTS_FILE }}" }
