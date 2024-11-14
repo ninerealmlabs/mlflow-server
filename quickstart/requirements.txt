@@ -1,3 +1,4 @@
-mlflow
-sqlalchemy
-scikit-learn
+mlflow[extra-ml-requirements]
+ipython
+notebook
+python-dotenv
