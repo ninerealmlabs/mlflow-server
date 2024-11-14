@@ -7,7 +7,7 @@ repos:
       - id: forbid-yml
         name: Forbid .yml file extensions (use .yaml)
         entry: YAML file extensions must be .yaml
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
         language: fail
         files: \.yml$
         exclude: |
@@ -17,7 +17,7 @@ repos:
       - id: forbid-rej
         name: Forbid .rej file extensions from `copier update`
         entry: Forbid .rej file extensions from `copier update`
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
         language: fail
         files: \.rej$
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -25,70 +25,74 @@ repos:
     hooks:
       - id: check-added-large-files
         args: [--maxkb=500000]
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
       - id: check-case-conflict
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
       - id: check-merge-conflict
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
       - id: check-yaml
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
       - id: end-of-file-fixer
-        stages: [commit]
+        stages: [pre-commit]
       - id: mixed-line-ending
-        stages: [commit]
+        stages: [pre-commit]
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
   - repo: https://github.com/Lucas-C/pre-commit-hooks
     rev: "v1.5.5"
     hooks:
       - id: remove-crlf
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
       - id: remove-tabs
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
   - repo: https://github.com/sirosen/texthooks
     rev: "0.6.7"
     hooks:
       - id: fix-smartquotes
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
       - id: fix-ligatures
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.8.0
+    hooks:
+      - id: nbstripout
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: "v3.1.0"
+    rev: "v4.0.0-alpha.8"
     hooks:
       - id: prettier
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: "v0.42.0"
     hooks:
       - id: markdownlint
         args: ["-f"]
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.35.1
     hooks:
       - id: yamllint
         args: [-c=.yamllint.yaml]
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
   # - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
   #   rev: 0.1.0
   #   hooks:
   #     - id: yamlfmt
   #       args: [--mapping, '2', --sequence, '4', --offset, '2', --preserve-quotes]
-  #       stages: [commit, ci]
+  #       stages: [pre-commit, ci]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
     rev: "v0.7.3"
     hooks:
       - id: ruff
         args: [--fix]
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
 
   - repo: https://github.com/petalmd/dockerfile-pre-commit
     rev: v1.0
     hooks:
       - id: dockerlint
-        stages: [commit]
+        stages: [pre-commit]
         # args: [--ignore, DL3025, --ignore, DL3018]
 
   ### NOTE: ".typos.toml" may be required to have _already been committed_
@@ -104,4 +108,4 @@ repos:
           (?x)^(
             ^.*(typos\.toml)$
           )$
-        stages: [commit, manual]
+        stages: [pre-commit, manual]
