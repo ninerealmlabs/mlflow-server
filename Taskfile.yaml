@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+set: [pipefail]
+shopt: [globstar]
+
+vars:
+  # Binaries
+  PYTHON_BIN: python3
+  # Directories
+  DOCKER_DIR: "{{.ROOT_DIR}}/docker"
+  QUICKSTART_DIR: "{{.ROOT_DIR}}/quickstart"
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  VIRTUAL_ENV: "{{.ROOT_DIR}}/.venv"
+
+includes:
+  docker: .taskfiles/docker
+  jupyter: .taskfiles/jupyter
+  mlflow: .taskfiles/mlflow
+
+tasks:
+  default: task --list

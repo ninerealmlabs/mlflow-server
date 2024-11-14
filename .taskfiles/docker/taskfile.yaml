@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  # DOCKER_BIN: TODO - conditional binary search (podman, colima, docker)
+  DOCKERFILE: "{{ .ROOT_DIR }}/docker/Dockerfile"
+  DOCKER_COMPOSE: "{{ .ROOT_DIR }}/quickstart/docker-compose.txt"
+
+tasks:
+
+  bin:
+    desc: Find/Set docker binary
+    cmds: []
+    preconditions: []
+
+  build: {}
+
+  up: {}
