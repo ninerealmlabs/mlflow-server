@@ -13,11 +13,12 @@ on: # yamllint disable-line rule:truthy
         description: Parent/Source image name (repository/name)
         required: true
         type: string
+        default: python
       source_tag:
         description: Tag of source image
         required: false
         type: string
-        default: 'latest' # doesn't actually pass default; hacked in in called action
+        default: '3.11-slim-bullseye' # doesn't actually pass default; hacked in in called action
       source_digest:
         description: Digest of source image
         required: false
@@ -27,14 +28,17 @@ on: # yamllint disable-line rule:truthy
         description: Image name
         required: true
         type: string
+        default: mlflow-server
       platforms:
         description: Image platform architectures
         required: true
         type: string
+        default: "linux/amd64,linux/arm64"
       gh_registry:
         description: Github registry (ghcr.io/<owner>)
         required: true
         type: string
+        default: ghcr.io/ninerealmlabs
       # d_registry:
       #   description: Docker registry (docker.io/<owner>)
       #   required: true
@@ -43,6 +47,7 @@ on: # yamllint disable-line rule:truthy
         description: Registry name
         required: true
         type: string
+        default: ninerealmlabs
       version:
         description: MLFlow semver tag
         required: true
