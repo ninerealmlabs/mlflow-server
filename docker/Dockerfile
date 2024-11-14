@@ -11,12 +11,13 @@ ENV GIT_COMMIT=${GIT_COMMIT}
 ENV VERSION=${VERSION}
 LABEL maintainer="ninerealmlabs"
 # hadolint ignore=DL3053
-LABEL build-date="${BUILD_DATE}"
+LABEL org.opencontainers.image.build-date="${BUILD_DATE}"
 # hadolint ignore=DL3055
-LABEL git-commit="${GIT_COMMIT}"
+LABEL org.opencontainers.image.git-commit="${GIT_COMMIT}"
 # hadolint ignore=DL3056
-LABEL version="${VERSION}"
-LABEL description="MLFlow-server"
+LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.title="mlflow-server"
+LABEL org.opencontainers.image.description="A containerized mlflow tracking server"
 
 RUN groupadd --gid 1001 mlflow \
  && useradd --id 1001 --gid mlflow --shell /bin/bash --create-home mlflow

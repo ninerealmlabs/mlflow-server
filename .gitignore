@@ -10,6 +10,8 @@ settings.json
 .ipynb_checkpoints/
 .pytest_cache/
 .ruff_cache/
+.task/
+.venv/
 *.cache
 *.csv
 *.xml

@@ -73,23 +73,34 @@ runs:
         echo "DATE: ${DATE}"
         echo "date=${DATE}" >> $GITHUB_OUTPUT
 
+    # - name: Create tags 🏷
+    #   id: tags
+    #   shell: bash
+    #   run: |
+    #     if [[ ${{ github.ref }} != 'refs/heads/main' ]]; then
+    #       echo "version=${{ inputs.version }}-beta" >> $GITHUB_OUTPUT
+    #       echo "Building beta version from branch: ${{ github.ref_name }}"
+    #     else
+    #       echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+    #       echo "Building release version"
+    #     fi
+    #     # ------------------------------------------------------------------
+    #     GIT_TAG="${GITHUB_SHA:0:7}"
+    #     # ------------------------------------------------------------------
+    #     echo "GIT_TAG: ${GIT_TAG}"
+    #     # ------------------------------------------------------------------
+    #     echo "git_tag=${GIT_TAG}" >> $GITHUB_OUTPUT
+
     - name: Create tags 🏷
       id: tags
-      shell: bash
-      run: |
-        if [[ ${{ github.ref }} != 'refs/heads/main' ]]; then
-          echo "version=${{ inputs.version }}-beta" >> $GITHUB_OUTPUT
-          echo "Building beta version from branch: ${{ github.ref_name }}"
-        else
-          echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
-          echo "Building release version"
-        fi
-        # ------------------------------------------------------------------
-        GIT_TAG="${GITHUB_SHA:0:7}"
-        # ------------------------------------------------------------------
-        echo "GIT_TAG: ${GIT_TAG}"
-        # ------------------------------------------------------------------
-        echo "git_tag=${GIT_TAG}" >> $GITHUB_OUTPUT
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ inputs.gh_registry }}/${{ inputs.image_name }}
+        tags: |
+          type=sha
+          type=raw,value=${{ inputs.version }}
+          type=raw,value=${{ inputs.version }}-{{sha}}
+          type=raw,value=latest,enable={{is_default_branch}}
 
     ### https://github.com/docker/build-push-action
     ### https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md
@@ -109,9 +120,10 @@ runs:
         # cache-from: type=gha
         cache-to: type=registry,ref=${{ inputs.gh_registry }}/${{ inputs.image_name }}:buildcache,mode=max
         push: true
-        tags: |
-          ${{ inputs.gh_registry }}/${{ inputs.image_name }}:${{ steps.tags.outputs.version }}
-          ${{ inputs.gh_registry }}/${{ inputs.image_name }}:${{ steps.tags.outputs.version }}-${{ steps.tags.outputs.git_tag }}
+        tags: ${{ steps.tags.outputs.tags }}
+        # tags: |
+        #   ${{ inputs.gh_registry }}/${{ inputs.image_name }}:${{ steps.tags.outputs.version }}
+        #   ${{ inputs.gh_registry }}/${{ inputs.image_name }}:${{ steps.tags.outputs.version }}-${{ steps.tags.outputs.git_tag }}
 
     - name: Inspect image digest 🔬
       shell: bash
