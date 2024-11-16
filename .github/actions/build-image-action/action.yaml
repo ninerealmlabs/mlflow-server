@@ -101,6 +101,7 @@ runs:
           type=raw,value=${{ inputs.version }}
           type=raw,value=${{ inputs.version }}-{{sha}}
           type=raw,value=latest,enable={{is_default_branch}}
+          type=ref,prefix=${{ inputs.version }},event=branch
 
     ### https://github.com/docker/build-push-action
     ### https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md
