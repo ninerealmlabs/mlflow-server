@@ -3,17 +3,64 @@
 version: "3"
 
 vars:
-  # DOCKER_BIN: TODO - conditional binary search (podman, colima, docker)
+  DOCKER_ENGINE: # conditional binary search (podman, colima, docker)
+    sh: |
+      if command -v colima &> /dev/null; then
+          echo "colima"
+          exit 0
+        elif command -v docker &> /dev/null; then
+          echo "docker"
+          exit 0
+        else
+          exit 1
+        fi
   DOCKERFILE: "{{ .ROOT_DIR }}/docker/Dockerfile"
   DOCKER_COMPOSE: "{{ .ROOT_DIR }}/quickstart/docker-compose.txt"
 
 tasks:
 
-  bin:
-    desc: Find/Set docker binary
-    cmds: []
-    preconditions: []
+  debug-docker-compat:
+    desc: "Debug detection of docker-compatible binary"
+    cmds:
+      - 'echo "Found binary: {{.DOCKER_ENGINE}}"'
 
-  build: {}
+  start:
+    desc: "Start container engine"
+    cmd: '[[ {{.DOCKER_ENGINE}} -eq "colima" ]] && $(colima start)'
 
-  up: {}
+  build:
+    desc: Build or rebuild services services with 'build' keys in docker compose
+    dir: "{{ .ROOT_DIR }}/quickstart"
+    cmds:
+      - "docker compose build"
+
+  up:
+    desc: Create and start containers with docker compose
+    dir: "{{ .ROOT_DIR }}/quickstart"
+    cmds:
+      - "docker compose up -d"
+
+  down:
+    aliases: ['dn']
+    desc: Stop and remove containers, networks with docker compose
+    dir: "{{ .ROOT_DIR }}/quickstart"
+    cmds:
+      - docker compose down --remove-orphans --volumes
+
+  clean:
+    aliases: ['rm']
+    desc: Clean up all dangling docker containers/images/volumes
+    cmds:
+      - docker container prune -f
+      - docker image prune -f
+      - docker network prune -f
+      - docker volume prune -f
+
+  clean-all:
+    aliases: ['rma']
+    desc: Clean up all unused docker containers/images/volumes
+    cmds:
+      - docker container prune -f
+      - docker image prune --all -f
+      - docker network prune -f
+      - docker volume prune --all -f
