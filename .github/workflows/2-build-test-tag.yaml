@@ -44,7 +44,7 @@ on: # yamllint disable-line rule:truthy
       #   required: true
       #   type: string
       owner:
-        description: Registry name
+        description: Registry owner/org name
         required: true
         type: string
         default: ninerealmlabs
@@ -133,46 +133,3 @@ jobs:
           owner:          ${{ inputs.owner }}
           version:        ${{ inputs.version }}
           # yamllint enable
-
-      # # translate step outputs to job outputs
-      # - name: Pass outputs 📬
-      #   id: outputs
-      #   shell: bash
-      #   run: |
-      #     PYTHON_TAG="${{ steps.build.outputs.python_tag }}"
-      #     GIT_TAG="${{ steps.build.outputs.git_tag }}"
-      #     IMAGE_DIGEST="${{ steps.build.outputs.image_digest }}"
-      #     # ------------------------------------------------------------------
-      #     echo "PYTHON_TAG: ${PYTHON_TAG}"
-      #     echo "GIT_TAG: ${GIT_TAG}"
-      #     echo "IMAGE_DIGEST: ${IMAGE_DIGEST}"
-      #     # ------------------------------------------------------------------
-      #     echo "python_tag=${PYTHON_TAG}" >> $GITHUB_OUTPUT
-      #     echo "git_tag=${GIT_TAG}" >> $GITHUB_OUTPUT
-      #     echo "image_digest=${IMAGE_DIGEST}" >> $GITHUB_OUTPUT
-
-      # - name: Test Image 🧪
-      #   id: test
-      #   uses: ./.github/actions/test-image-action
-      #   with:
-      #     gh_registry: ${{ inputs.gh_registry }}
-      #     owner: ${{ inputs.owner }}
-      #     image_name: ${{ inputs.image_name }}
-      #     image_digest: ${{ steps.build.outputs.digest }}
-
-      # ### push to registry on main branch only
-      # - name: Login to DockerHub ✅
-      #   if: github.ref_name == 'main'
-      #   uses: docker/login-action@v2
-      #   with:
-      #     username: ${{ secrets.DOCKER_USER }}
-      #     password: ${{ secrets.DOCKER_TOKEN }}
-
-      # - if: github.ref_name == 'main'
-      #   name: Tag & Push image to docker 🏷
-      #   uses: akhilerm/tag-push-action@v2.1.0
-      #   with:
-      #     src: ${{ inputs.gh_registry }}/${{ inputs.image_name }}@${{ steps.build.outputs.image_digest }}
-      #     dst: |
-      #       ${{ inputs.d_registry }}/${{ inputs.image_name }}:${{ steps.build.outputs.python_tag }}
-      #       ${{ inputs.d_registry }}/${{ inputs.image_name }}:${{ steps.build.outputs.python_tag }}-${{ steps.build.outputs.git_tag }}
