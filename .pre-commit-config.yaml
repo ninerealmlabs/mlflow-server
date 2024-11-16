@@ -61,6 +61,10 @@ repos:
     rev: "v4.0.0-alpha.8"
     hooks:
       - id: prettier
+        args:
+          - --write
+          - --ignore-unknown
+          - --no-error-on-unmatched-pattern
         stages: [pre-commit, manual]
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: "v0.42.0"
@@ -99,7 +103,7 @@ repos:
   ### in order for typos pre-commit hook to read it.
   ### In this case, comment out this block until ".typos.toml" has been committed successfully
   - repo: https://github.com/crate-ci/typos
-    rev: v1.27.3
+    rev: typos-dict-v0.11.35
     hooks:
       - id: typos
         # args: []

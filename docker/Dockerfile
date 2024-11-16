@@ -19,33 +19,53 @@ LABEL org.opencontainers.image.version="${VERSION}"
 LABEL org.opencontainers.image.title="mlflow-server"
 LABEL org.opencontainers.image.description="A containerized mlflow tracking server"
 
-RUN groupadd --gid 1001 mlflow \
- && useradd --id 1001 --gid mlflow --shell /bin/bash --create-home mlflow
-
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 EXPOSE 5000
 
-WORKDIR /
+USER root
 
-RUN apt-get update -yq \
- && apt-get upgrade -yq \
- && apt-get install -yq \
+ENV VIRTUAL_ENV=/app/venv
+RUN <<EOF
+groupadd --gid 10001 mlflow
+useradd --uid 10001 --gid mlflow --shell /bin/bash --create-home mlflow
+mkdir -p /app/mlruns
+python -m venv $VIRTUAL_ENV
+chown -R mlflow:mlflow /app
+EOF
+
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+VOLUME /app
+WORKDIR /app
+ENV MLFLOW_HOST 0.0.0.0
+ENV MLFLOW_PORT 5000
+
+RUN <<EOF
+apt-get update -yq
+apt-get upgrade -yq
+apt-get install -yq \
     gcc \
     g++ \
     libpq-dev \
     libyaml-cpp-dev \
     libyaml-dev \
-    nano \
- && apt-get autoremove \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+    nano
+apt-get autoremove
+apt-get clean
+rm -rf /var/lib/apt/lists/*
+EOF
 
-COPY requirements.txt ./
-RUN pip install --no-cache-dir --upgrade pip \
- && pip install --no-cache-dir --quiet -r requirements.txt \
- && pip cache purge
+USER mlflow
+COPY --chown=mlflow requirements.txt ./
+RUN <<EOF
+python3 -m venv $VIRTUAL_ENV
+./venv/bin/python3 -m pip install --no-cache-dir --upgrade pip setuptools wheel
+./venv/bin/python3 -m pip install --no-cache-dir --quiet --requirement ./requirements.txt
+./venv/bin/python3 -m pip cache purge
+EOF
 
-USER 1001
-CMD ["bash"]
+ENTRYPOINT ["mlflow"]
+CMD ["server"]
 # COPY run.sh ./
 # ENTRYPOINT mlflow server --host 0.0.0.0 --port 5000
 # CMD ["--backend-store-uri $MLFLOW_BACKEND_STORE_URI", \
