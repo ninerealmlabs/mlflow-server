@@ -40,14 +40,13 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:?Error - AWS_ACCESS_KEY_ID must be provided in .env}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:?Error - AWS_SECRET_ACCESS_KEY must be
         provided in .env}
-
     entrypoint: >
       /bin/sh -c " /usr/bin/mc alias set minio http://minio:9000 ${MINIO_ROOT_USER}
-      ${MINIO_ROOT_PASSWORD}; /usr/bin/mc admin config set minio site region=us-east && mc admin
-      service restart minio; /usr/bin/mc admin user add minio ${AWS_ACCESS_KEY_ID}
-      ${AWS_SECRET_ACCESS_KEY}; /usr/bin/mc admin policy set minio readwrite
-      user=${AWS_ACCESS_KEY_ID}; /usr/bin/mc rm -r --force minio/${BUCKET_NAME:-mlflow}; /usr/bin/mc
-      mb minio/${BUCKET_NAME:-mlflow}; exit 0; "
+      ${MINIO_ROOT_PASSWORD}; /usr/bin/mc admin config set minio site region=us-east && /usr/bin/mc
+      admin service restart minio; /usr/bin/mc admin user add minio ${AWS_ACCESS_KEY_ID}
+      ${AWS_SECRET_ACCESS_KEY}; /usr/bin/mc admin policy attach minio readwrite
+      --user=${AWS_ACCESS_KEY_ID}; /usr/bin/mc rm -r --force minio/${BUCKET_NAME:-mlflow};
+      /usr/bin/mc mb minio/${BUCKET_NAME:-mlflow}; exit 0;"
     # /usr/bin/mc admin policy set public minio/${BUCKET_NAME:-mlflow};
 
   postgres:
@@ -58,57 +57,56 @@ services:
     ports:
       - 5432:5432
     environment:
-      - POSTGRESQL_PASSWORD=${POSTGRES_PASS:-postgres}
-      - POSTGRESQL_DATABASE=${DB_NAME:-mlflow}
+      - POSTGRES_DB=${POSTGRES_DB:-mlflow}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
     # volumes:
     #   - db:/var/lib/postgresql/data
-    healthcheck:
-      test:
-        - CMD
-        - pg_isready
-        - -d
-        - ${DB_NAME:-mlflow}
-        - -U
-        - ${POSTGRES_USER:-postgres}
-      interval: 30s
-      timeout: 20s
-      retries: 3
+    # healthcheck:
+    #   test: ["CMD", "pg_isready", "-d", "${DB_NAME:-mlflow}", "-U", "${POSTGRES_USER:-postgres}"]
+    #   interval: 30s
+    #   timeout: 20s
+    #   retries: 3
 
   mlflow:
-    image: ghcr.io/ninerealmlabs/mlflow-server:latest
+    build:
+      context: ../docker/
+      dockerfile: Dockerfile
+    # image: ghcr.io/ninerealmlabs/mlflow-server:<latest>
     container_name: mlflow
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
       minio_config:
         condition: service_completed_successfully
     restart: unless-stopped
     # network_mode: host
     ports:
-      - 5000:5000
+      - name: mlflow
+        target: &port 5000
+        host_ip: 127.0.0.1
+        published: 5555
+        mode: host
     environment:
-      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:?Error - AWS_ACCESS_KEY_ID must be provided in .env}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:?Error - AWS_SECRET_ACCESS_KEY must be
-        provided in .env}
-      - AWS_DEFAULT_REGION=us-east
+      MLFLOW_HOST: "0.0.0.0"
+      MLFLOW_PORT: *port
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:?Error - AWS_ACCESS_KEY_ID must be provided in .env}
+      AWS_SECRET_ACCESS_KEY:
+        ${AWS_SECRET_ACCESS_KEY:?Error - AWS_SECRET_ACCESS_KEY must be provided in .env}
+      # AWS_DEFAULT_REGION: us-east
       # other environmental variables as required
-    # ### NOTE: uncomment for scenario 4
-    # command: >
-    #   mlflow server
-    #   --host=0.0.0.0
-    #   --port=5000
-    #   --backend-store-uri="postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASS:-postgres}@postgres:5432/${DB_NAME:-mlflow}""
-    #   --default-artifact-root="s3://${BUCKET_NAME:-mlflow}"
-    command: >
-      mlflow server --host=0.0.0.0 --port=5000
-      --backend-store-uri="postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASS:-postgres}@postgres:5432/${DB_NAME:-mlflow}""
-      --serve-artifacts --artifacts-destination="s3://${BUCKET_NAME:-mlflow}"
+    command:
+      - "server"
+      - "--host=0.0.0.0"
+      - "--port=5000"
+      - "--backend-store-uri=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASS:-postgres}@postgres:5432/${DB_NAME:-mlflow}"
+      - "--serve-artifacts"
+      - "--artifacts-destination=s3://${BUCKET_NAME:-mlflow}"
 
 networks:
   default:
     name: mlflow
-
-volumes:
-  db:
-  s3:
+# volumes:
+#   db:
+#   s3:

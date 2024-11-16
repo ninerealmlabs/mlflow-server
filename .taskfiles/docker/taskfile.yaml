@@ -38,7 +38,7 @@ tasks:
     desc: Create and start containers with docker compose
     dir: "{{ .ROOT_DIR }}/quickstart"
     cmds:
-      - "docker compose up -d"
+      - "docker compose --env-file {{ .ROOT_DIR }}/quickstart/.env up -d"
 
   down:
     aliases: ['dn']
