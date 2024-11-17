@@ -2,3 +2,4 @@ mlflow[extra-ml-requirements]
 ipython
 notebook
 python-dotenv
+psycopg2-binary

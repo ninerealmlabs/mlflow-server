@@ -68,6 +68,13 @@ When upgrading MLflow, it is possible that a database migration will be required
 mlflow db upgrade "$MLFLOW_BACKEND_STORE_URI"
 ```
 
+### Cleaning up deleted experiments
+
+- Run `mlflow gc` in the mlflow container to clean up deleted runs and artifacts (this retains the experiment).
+  The python script `cleanup-runs.py` may also be used to clean up runs from the database (this may orphan the artifacts).
+  See more: [[BUG] gc fails with postgres backend, violates foreign key constraint · Issue #13254 · mlflow/mlflow](https://github.com/mlflow/mlflow/issues/13254)
+- Run the python script `cleanup-experiments.py` to fully delete experiments from the database
+
 ## Gateway Server
 
 This container can also be used to deploy the [MLflow AI Gateway](https://mlflow.org/docs/latest/llms/deployments/index.html)
