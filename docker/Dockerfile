@@ -57,7 +57,9 @@ EOF
 
 USER mlflow
 COPY --chown=mlflow requirements.txt ./
+COPY --chown=mlflow scripts/ ./
 RUN <<EOF
+chmod +x ./*.py ./*.sh ./*.sql
 python3 -m venv $VIRTUAL_ENV
 ./venv/bin/python3 -m pip install --no-cache-dir --upgrade pip setuptools wheel
 ./venv/bin/python3 -m pip install --no-cache-dir --quiet --requirement ./requirements.txt
