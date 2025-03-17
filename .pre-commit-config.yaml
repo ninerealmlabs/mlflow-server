@@ -73,7 +73,7 @@ repos:
         args: ["-f"]
         stages: [pre-commit, manual]
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.36.1
+    rev: v1.36.2
     hooks:
       - id: yamllint
         args: [-c=.yamllint.yaml]
