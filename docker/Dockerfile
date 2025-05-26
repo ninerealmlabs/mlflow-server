@@ -4,20 +4,18 @@ FROM "${SOURCE_IMAGE}"
 
 # Labels
 ARG BUILD_DATE
-ARG GIT_COMMIT
+ARG VCS_REF
 ARG VERSION
 ENV BUILD_DATE=${BUILD_DATE}
-ENV GIT_COMMIT=${GIT_COMMIT}
+ENV VCS_REF=${VCS_REF}
 ENV VERSION=${VERSION}
-LABEL maintainer="ninerealmlabs"
-# hadolint ignore=DL3053
-LABEL org.opencontainers.image.build-date="${BUILD_DATE}"
-# hadolint ignore=DL3055
-LABEL org.opencontainers.image.git-commit="${GIT_COMMIT}"
-# hadolint ignore=DL3056
-LABEL org.opencontainers.image.version="${VERSION}"
 LABEL org.opencontainers.image.title="mlflow-server"
+LABEL org.opencontainers.image.source="https://github.com/ninerealmlabs/mlflow-server"
 LABEL org.opencontainers.image.description="A containerized mlflow tracking server"
+LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.created="${BUILD_DATE}"
+LABEL org.opencontainers.image.revision="${VCS_REF}"
+
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 EXPOSE 5000

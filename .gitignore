@@ -1,12 +1,17 @@
-!**.gitkeep
+
+### direnv ###
+.direnv/
+.envrc
+
+### dotenv ###
+.env
 
 # OS Junk
 .DS_Store
 Thumbs.db
 settings.json
-.vscode
+.vscode/
 
-.envrc
 .ipynb_checkpoints/
 .pytest_cache/
 .ruff_cache/
@@ -18,3 +23,8 @@ settings.json
 *.zip
 
 local/
+node_modules/
+
+# retain files
+!**.gitkeep
+!**.gitignore

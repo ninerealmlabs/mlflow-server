@@ -1,17 +1,10 @@
-# prettier should ignore
-# .azureml
-# .eggs
-# .ipynb_checkpoints
-# .nox
-# .obsidian
-# .pytest_cache
-# .tox
-.vscode/
+# in addition to files in .gitignore, prettier should ignore
 .**/
-dist/
-
+.*
 *.md
-
-# ignore local .env from versioning
-.env
-.envrc
+# *.y*ml
+node_modules
+**/node_modules
+**/lib
+**/package.json
+!/package.json

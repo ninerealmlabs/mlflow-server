@@ -92,8 +92,7 @@ services:
       MLFLOW_PORT: *port
       MLFLOW_S3_ENDPOINT_URL: http://minio:9000
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:?Error - AWS_ACCESS_KEY_ID must be provided in .env}
-      AWS_SECRET_ACCESS_KEY:
-        ${AWS_SECRET_ACCESS_KEY:?Error - AWS_SECRET_ACCESS_KEY must be provided in .env}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:?Error - AWS_SECRET_ACCESS_KEY must be provided in .env}
       # AWS_DEFAULT_REGION: us-east
       # other environmental variables as required
     command:

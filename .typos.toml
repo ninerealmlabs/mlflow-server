@@ -3,11 +3,14 @@
 [files]
 # glob/gitignore-style file exclusions
 extend-exclude = [
-  "_typos.toml",
   ".typos.toml",
+  "_typos.toml",
   "typos.toml",
+  "*.csv",
+  "*.git*",
+  "*.sops.yaml",
 ]
-ignore-hidden = false   # ignore hidden files/dirs
+ignore-hidden = true   # ignore hidden files/dirs
 ignore-files = true     # respect ignore files
 ignore-dot = true       # respect ignore files
 ignore-vcs = true       # ignore version-control directories
@@ -24,7 +27,12 @@ locale = "en"
 
 ## Custom uncorrectable sections (e.g. markdown code fences, PGP signatures, etc)
 ## list of regexes
-extend-ignore-re = []
+extend-ignore-re = [
+  # Line ignore with trailing "typos:disable"
+  "(?Rm)^.*(#|//)\\s*typos:disable$",
+  # Block ignore with "typos:off"||"typos:on"
+  "(?s)(#|//)\\s*typos:off.*?\\n\\s*(#|//)\\s*typos:on",
+]
 
 ## Pattern-match always-valid identifiers
 ## list of regexes
@@ -43,9 +51,9 @@ AKS = "AKS"
 ## When the correction is blank, the word is *never* valid.
 ## When the correction is the key, the word is *always* valid.
 [default.extend-words]
+"arange" = "arange"  # e.g. `numpy.arange`
 keypair = "keypair"
 mape = "mape"
-
 
 ## Specific rules for lockfiles
 [type.lock]
@@ -70,6 +78,5 @@ extend-ignore-identifiers-re = []
 extend-ignore-re = []
 
 [type.py.extend-identifiers]
-NDArray = "NDArray"
 
 [type.py.extend-words]
