@@ -1,4 +1,4 @@
-ARG SOURCE_IMAGE=python:3.11-slim-bullseye
+ARG SOURCE_IMAGE=python:3.12-slim-bullseye
 # hadolint ignore=DL3006
 FROM "${SOURCE_IMAGE}"
 
