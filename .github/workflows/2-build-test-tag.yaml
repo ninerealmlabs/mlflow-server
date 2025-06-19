@@ -18,7 +18,7 @@ on: # yamllint disable-line rule:truthy
         description: Tag of source image
         required: false
         type: string
-        default: '3.11-slim-bullseye' # doesn't actually pass default; hacked in in called action
+        default: '3.12-slim-bullseye' # doesn't actually pass default; hacked in in called action
       source_digest:
         description: Digest of source image
         required: false
