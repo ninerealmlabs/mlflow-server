@@ -29,7 +29,7 @@ services:
 
   minio_config:
     container_name: minio_config
-    image: minio/mc:latest@sha256:09f93f534cde415d192bb6084dd0e0ddd1715fb602f8a922ad121fd2bf0f8b44
+    image: minio/mc:latest@sha256:d5bccfe71e95a34b25d626d86621930342553657e8776833b65ae0bc63cf4928
     depends_on:
       minio:
         condition: service_healthy
