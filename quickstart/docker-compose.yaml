@@ -2,7 +2,7 @@
 services:
   minio:
     container_name: minio
-    image: minio/minio:latest@sha256:da0fe26595711d0fb93dd28e24552520f68897195f4a23f5a17ffa9924ec3fac
+    image: minio/minio:latest@sha256:d249d1fb6966de4d8ad26c04754b545205ff15a62e4fd19ebd0f26fa5baacbc0
     # platform: linux/amd64
     restart: unless-stopped
     # network_mode: host
