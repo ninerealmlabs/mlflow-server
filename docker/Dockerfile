@@ -16,7 +16,6 @@ LABEL org.opencontainers.image.version="${VERSION}"
 LABEL org.opencontainers.image.created="${BUILD_DATE}"
 LABEL org.opencontainers.image.revision="${VCS_REF}"
 
-
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 EXPOSE 5000
 
@@ -37,6 +36,11 @@ VOLUME /app
 WORKDIR /app
 ENV MLFLOW_HOST=0.0.0.0
 ENV MLFLOW_PORT=5000
+
+# disable phone-home telemetry by default
+ENV MLFLOW_DISABLE_TELEMETRY=true
+ENV DO_NOT_TRACK=true
+# RUN echo "127.0.0.1 config.mlflow-telemetry.io" >> /etc/hosts
 
 RUN <<EOF
 apt-get update -yq
