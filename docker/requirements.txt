@@ -1,4 +1,4 @@
-mlflow[auth,extras,gateway,genai]==3.1.1
+mlflow[auth,extras,gateway,genai]==3.1.4
 azure-identity
 azure-storage-common
 azure-storage-blob
