@@ -50,7 +50,7 @@ services:
     # /usr/bin/mc admin policy set public minio/${BUCKET_NAME:-mlflow};
 
   postgres:
-    image: postgres:latest@sha256:7a554f408a1bc37f29e1e81757368cffa330619d017d235822223be538d37f5a
+    image: postgres:latest@sha256:0f9d52b237395d0512efd1e5493ac9bd60606839994422bba9bfa7ab3ddc32ea
     container_name: postgres
     restart: unless-stopped
     # network_mode: host
