@@ -20,9 +20,10 @@
           # imports = [];
           # a list of packages to add to the shell environment
           packages = [
-            # pkgs.podman
             pkgs.colima
             pkgs.qemu
+            pkgs.docker
+            # pkgs.podman
           ];
           # imports = [ (pkgs.devshell.importTOML ./devshell.toml) ];
         };

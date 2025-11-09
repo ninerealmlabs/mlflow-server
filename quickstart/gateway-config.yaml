@@ -1,0 +1,8 @@
+endpoints:
+  - name: chat
+    endpoint_type: llm/v1/chat
+    model:
+      provider: openai
+      name: gpt-5-mini
+      config:
+        openai_api_key: $OPENAI_API_KEY

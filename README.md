@@ -1,63 +1,46 @@
 # MLflow-server
 
-> ⚠️ Deprecation Notice: No longer updating Dockerhub repository ⚠️
+This repo provides a MLflow container intended for robust [self-hosted deployment](https://mlflow.org/docs/latest/self-hosting/), where the MLflow container serves as the tracking server, with (optional but recommended) external Artifact and Backend Stores. This readme details the recommended configuration.
+
+> ⚠️ Deprecation Notice: No longer updating DockerHub repository ⚠️
 >
 > Due to March 2023 removal of Docker's free Teams organization & history of price changes,
 > images will no longer be pushed to DockerHub.
 > Please use `ghcr.io/ninerealmlabs/mlflow-server:<tag>`
 
-## Tracking Server
+## Quickstart
 
-[MLflow](https://mlflow.org) provides for diverse [tracking server configurations](https://mlflow.org/docs/latest/tracking.html#common-setups);
-among them are:
+The [`quickstart` directory](./quickstart) provides a sample docker compose deployment, demonstrating MLflow Server, MLflow AI Gateway, and using S3 and Postgres as Artifact and Backend Stores respectively.
 
-- MLflow as remote Tracking Server, providing tracking backend and proxied access to artifact stores
-- MLflow as Artifact Server only, providing proxied access to artifacts but no tracking
-- MLflow Tracking Server only, and requiring direct access to the artifact store.
-  In this configuration, the user must manage their direct connection to the artifact store
+## Experiment Tracking Server
 
-MLflow uses two components for storage: backend store and artifact store.
-The **backend store** persists MLflow entities (_runs_, parameters, metrics, tags, notes, metadata, etc), and
-these data can be recorded to local files, to a SQLAlchemy compatible database, or remotely to a tracking server
-The **artifact store** persists _artifacts_ (files, models, images, in-memory objects, or model summary, etc)
-to local files or a variety of remote file storage solutions.
+The [MLflow Tracking Server](https://mlflow.org/docs/latest/self-hosting/architecture/tracking-server/) hosts the MLflow UI and proxies connections to the Artifact and Backend Stores.
 
-```yaml
-version: 3
-services:
-...
-  mlflow:
-    image: ghcr.io/ninerealmlabs/mlflow-server:<latest>
-    ...
-    command:
-      - "server"
-      - "--host=0.0.0.0"
-      - "--port=5000"
-      - "--backend-store-uri=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASS:-postgres}@postgres:5432/${DB_NAME:-mlflow}"
-      - "--serve-artifacts"
-      - "--artifacts-destination=s3://${BUCKET_NAME:-mlflow}"
-```
+### Artifact Store
 
-### Quickstart
+The [Artifact Store](https://mlflow.org/docs/latest/self-hosting/architecture/artifact-store/) is the storage location for the _artifacts_ created by each run (model weights, images (.jpeg, .png), and model and data files). MLflow supports a variety of object storage solutions (S3, blob, network-accessible storage, etc.)
 
-```sh
-cd quickstart
-docker compose up
-```
+### Backend Store
 
-#### Use `mlflow-server` as remote MLflow instance
-
-From a local python runtime with at least `mlflow`, `pandas`, and `scikit-learn` installed,
-run [try-mlflow.py](try-mlflow.py), replacing `tracking_uri` with the address of the running `mlflow-server` instance
+The [Backend Store](https://mlflow.org/docs/latest/self-hosting/architecture/backend-store/) persists MLflow entities and metadata (_runs_, parameters, metrics, tags, notes, etc.) to a relational database.
 
 ### Configuration
 
-Configuration is done by setting environmental variables in [docker-compose.yaml](docker-compose.yaml).
-
-Generally, environmental variables are equivalent to [mlflow-server cli commands](https://mlflow.org/docs/latest/cli.html#mlflow-server)
-with "MLFLOW" prefix, capslock, and underscores (i.e., `--serve-artifacts` would become `MLFLOW_SERVE_ARTIFACTS`).
+Configuration is done by setting environmental variables. Generally, environmental variables are equivalent to [mlflow-server cli commands](https://mlflow.org/docs/latest/cli.html#mlflow-server) with "MLFLOW" prefix, all-caps, and underscores (i.e., `--serve-artifacts` would become `MLFLOW_SERVE_ARTIFACTS`).
 
 Options for storage are specified in the [tracking server documentation](https://mlflow.org/docs/latest/tracking/artifacts-stores.html#supported-storage-types-for-the-artifact-store)
+
+### Network security middleware
+
+Review the [network hardening guide](https://mlflow.org/docs/latest/self-hosting/security/network/) and configure the container with explicit settings. The compose example accepts overrides via `.env`:
+
+```yaml
+MLFLOW_SERVER_ALLOWED_HOSTS=mlflow.example.com,localhost:5555 MLFLOW_SERVER_CORS_ALLOWED_ORIGINS=https://app.example.com
+MLFLOW_SERVER_X_FRAME_OPTIONS=DENY
+...
+```
+
+Adjust these to match the domains that should reach the tracking server. Set `MLFLOW_SERVER_X_FRAME_OPTIONS=NONE` only when the UI must be embedded cross-origin, and avoid overriding `MLFLOW_SERVER_ALLOWED_HOSTS` with `*` outside of local development.
 
 ### Database migrations
 
@@ -77,25 +60,6 @@ mlflow db upgrade "$MLFLOW_BACKEND_STORE_URI"
 
 ## Gateway Server
 
-This container can also be used to deploy the [MLflow AI Gateway](https://mlflow.org/docs/latest/llms/deployments/index.html)
-Follow the instructions in the MLflow documentation to create a `config.yaml` file
-with the specifications for the AI API services that will be routed through the AI Gateway.
+This container can also be used to deploy the [MLflow AI Gateway](https://mlflow.org/docs/latest/genai/governance/ai-gateway/). The AI Gateway provides a central interface for deploying and managing multiple LLM providers, and supports the [prompt engineering UI](https://mlflow.org/docs/latest/genai/prompt-registry/prompt-engineering/).
 
-```yaml
-version: 3
-services:
-...
-  mlflow:
-    image: ghcr.io/ninerealmlabs/mlflow-server:<latest>
-    ...
-    environment:
-      OPENAI_API_KEY: ...
-      MLFLOW_DEPLOYMENTS_CONFIG: /app/config.yaml
-    volumes:
-      - ${PWD}/config.yaml:/app/config.yaml
-    command:
-      - "gateway"
-      - "--host=0.0.0.0"
-      - "--port=5000"
-      - "--config-path /app/config.yaml"
-```
+Follow the instructions in the [AI Gateway Configuration documentation](https://mlflow.org/docs/latest/genai/governance/ai-gateway/configuration/) to create a `config.yaml` file with the specifications for the AI API services that will be routed through the AI Gateway.
