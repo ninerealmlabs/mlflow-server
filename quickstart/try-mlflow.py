@@ -20,7 +20,13 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 # %%
 tracking_uri = "http://localhost:5555"
 mlflow.set_tracking_uri(tracking_uri)
+
+# %% [markdown]
+# ## MLflow autologging with scikit-learn pipeline
+
+# %%
 mlflow.set_experiment("iris-test")
+mlflow.autolog()
 
 # %%
 # ### NOTE: env vars required for scenario 4 but not for scenario 5
@@ -54,7 +60,11 @@ with mlflow.start_run():
     pipe.fit(X_train, y_train)
 
     # preserve model object
-    mlflow.sklearn.log_model(pipe, "pipeline_model")
+    mlflow.sklearn.log_model(
+        sk_model=pipe,
+        name="pipeline_model",
+        input_example=X_train[:5],
+    )
 
     # predict and assess
     y_predict = pipe.predict(X_test)
@@ -72,5 +82,29 @@ with mlflow.start_run():
     mlflow.log_artifact("predictions.csv")
     # clean up
     os.remove("predictions.csv")
+
+# %% [markdown]
+# ## MLflow GenAI Gateway
+
+# %%
+from openai import OpenAI  # NOQA: E402
+
+mlflow.openai.autolog()
+mlflow.set_experiment("traces-quickstart")
+
+client = OpenAI(
+    base_url="http://localhost:5556/v1",
+    # API key is not needed, it is configured in gateway server side.
+    api_key="",
+)
+
+# %%
+messages = [{"role": "user", "content": "How are you ?"}]
+
+response = client.chat.completions.create(
+    model="chat",  # matches endpoint name in config.yaml
+    messages=messages,
+    temperature=1,
+)
 
 # %%
