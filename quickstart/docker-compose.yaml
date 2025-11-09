@@ -79,22 +79,27 @@ services:
         condition: service_started
       minio_config:
         condition: service_completed_successfully
+      gateway:
+        condition: service_started
     restart: unless-stopped
     # network_mode: host
     ports:
       - name: mlflow
-        target: &port 5000
+        target: 5000
         host_ip: 127.0.0.1
         published: 5555
         mode: host
     environment:
-      MLFLOW_HOST: "0.0.0.0"
-      MLFLOW_PORT: *port
+      MLFLOW_DEPLOYMENTS_TARGET: http://gateway:7000
       MLFLOW_S3_ENDPOINT_URL: http://minio:9000
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:?Error - AWS_ACCESS_KEY_ID must be provided in .env}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:?Error - AWS_SECRET_ACCESS_KEY must be provided in .env}
       # AWS_DEFAULT_REGION: us-east
-      # other environmental variables as required
+      ### Restrict network exposure; adjust defaults for production deployments
+      MLFLOW_SERVER_ALLOWED_HOSTS: ${MLFLOW_SERVER_ALLOWED_HOSTS:-localhost:*}
+      MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: ${MLFLOW_SERVER_CORS_ALLOWED_ORIGINS:-http://localhost:*}
+      # MLFLOW_SERVER_X_FRAME_OPTIONS: ${MLFLOW_SERVER_X_FRAME_OPTIONS:-DENY}
+      ### other environmental variables as required
     command:
       - "server"
       - "--host=0.0.0.0"
@@ -102,6 +107,36 @@ services:
       - "--backend-store-uri=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASS:-postgres}@postgres:5432/${DB_NAME:-mlflow}"
       - "--serve-artifacts"
       - "--artifacts-destination=s3://${BUCKET_NAME:-mlflow}"
+
+  gateway:
+    build:
+      context: ../docker/
+      dockerfile: Dockerfile
+    # image: ghcr.io/ninerealmlabs/mlflow-server:<latest>
+    container_name: gateway
+    # network_mode: host
+    ports:
+      - name: mlflow
+        target: 7000
+        host_ip: 127.0.0.1
+        published: 5556
+        mode: host
+    environment:
+      MLFLOW_DEPLOYMENTS_CONFIG: /app/config.yaml
+      ### Restrict network exposure; adjust defaults for production deployments
+      MLFLOW_SERVER_ALLOWED_HOSTS: ${MLFLOW_SERVER_ALLOWED_HOSTS:-localhost:*}
+      MLFLOW_SERVER_CORS_ALLOWED_ORIGINS: ${MLFLOW_SERVER_CORS_ALLOWED_ORIGINS:-http://localhost:*}
+      # MLFLOW_SERVER_X_FRAME_OPTIONS: ${MLFLOW_SERVER_X_FRAME_OPTIONS:-DENY}
+      ### other environmental variables as required
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?Error - OPENAI_API_KEY must be provided in .env}
+    volumes:
+      - ${PWD}/gateway-config.yaml:/app/config.yaml:ro
+    command:
+      - "gateway"
+      - "start"
+      - "--host=0.0.0.0"
+      - "--port=7000"
+      - "--config-path=/app/config.yaml"
 
 networks:
   default:

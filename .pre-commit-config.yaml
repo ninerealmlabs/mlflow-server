@@ -84,7 +84,7 @@ repos:
         stages: [pre-commit]
   # renovate: datasource=github-tags depName=zricethezav/gitleaks
   - repo: https://github.com/zricethezav/gitleaks
-    rev: "v8.28.0"
+    rev: "v8.29.0"
     hooks:
       - id: gitleaks
   # renovate: datasource=github-tags depName=stefmolin/exif-stripper
@@ -104,7 +104,7 @@ repos:
           - commit-msg
   # renovate: datasource=github-tags depName=editorconfig-checker/editorconfig-checker.python
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
-    rev: "3.4.0"
+    rev: "3.4.1"
     hooks:
       - id: editorconfig-checker
         name: Check editorconfig compliance
@@ -118,7 +118,7 @@ repos:
         stages: [pre-commit]
   # renovate: datasource=github-tags depName=hukkin/mdformat
   - repo: https://github.com/hukkin/mdformat
-    rev: 1.0.0
+    rev: 0.7.22
     hooks:
       - id: mdformat
         additional_dependencies:
@@ -126,11 +126,12 @@ repos:
           - mdformat-frontmatter
           - mdformat-footnote
           - mdformat-gfm-alerts
-          - mdformat-tables
+          # - mdformat-tables # now included in mdformat-gfm
           - mdformat-toc
           - mdformat-config
           - mdformat-ruff
           # - mdformat-shfmt # disable until can pass args (ref: https://github.com/hukkin/mdformat-shfmt/issues/7)
+          - mdformat-simple-breaks
   # renovate: datasource=github-tags depName=igorshubovych/markdownlint-cli
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: "v0.45.0"
@@ -212,7 +213,7 @@ repos:
   ### In this case, comment out this block until ".typos.toml" has been committed successfully
   # renovate: datasource=github-tags depName=crate-ci/typos
   - repo: https://github.com/crate-ci/typos
-    rev: "v1.38.1"
+    rev: "v1.39.0"
     hooks:
       - id: typos
         name: Spellcheck with Typos

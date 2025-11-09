@@ -6,3 +6,4 @@ azure-storage-file-share
 pg8000
 psycopg2-binary
 pysftp
+mlflow-oidc-auth
