@@ -42,6 +42,10 @@ MLFLOW_SERVER_X_FRAME_OPTIONS=DENY
 
 Adjust these to match the domains that should reach the tracking server. Set `MLFLOW_SERVER_X_FRAME_OPTIONS=NONE` only when the UI must be embedded cross-origin, and avoid overriding `MLFLOW_SERVER_ALLOWED_HOSTS` with `*` outside of local development.
 
+### Single Sign-on
+
+Single Sign-on (SSO) is provided by the [mlflow-oidc-auth](https://github.com/mlflow-oidc/mlflow-oidc-auth) plugin.
+
 ### Database migrations
 
 When upgrading MLflow, it is possible that a database migration will be required.
