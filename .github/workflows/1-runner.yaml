@@ -41,8 +41,30 @@ jobs:
         id: version
         shell: bash
         run: |
-          # extract mlflow version from requirements.txt
-          VERSION="$(grep 'mlflow' docker/requirements.txt | xargs | sed s'|^.*==||g' | sed s'|[[:space:]]||g')"
+          # Extract only the mlflow package version (not similarly named packages).
+          VERSION="$(
+            awk -F'==' '
+              {
+                line = $0
+                sub(/#.*/, "", line)
+                gsub(/[[:space:]]/, "", line)
+              }
+              line ~ /^mlflow(\[[^]]+\])?==/ {
+                print $2
+                exit
+              }
+            ' docker/requirements.txt
+          )"
+
+          if [[ -z "${VERSION}" ]]; then
+            echo "Failed to extract mlflow version from docker/requirements.txt" >&2
+            exit 1
+          fi
+
+          if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Extracted VERSION is not semver (x.y.z): ${VERSION}" >&2
+            exit 1
+          fi
           # ------------------------------------------------------------------
           echo "VERSION: ${VERSION}"
           # ------------------------------------------------------------------
