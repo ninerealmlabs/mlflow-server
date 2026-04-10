@@ -1,30 +1,74 @@
+# -------------------------------------------------------
+# Dot-directories: ignore all, allowlist what we track
+# -------------------------------------------------------
+.*/
+!.claude/
+!.github/
+!.specs/
+!.renovate/
 
-### direnv ###
-.direnv/
-.envrc
-
-### dotenv ###
-.env
-
-# OS Junk
+# -------------------------------------------------------
+# OS
+# -------------------------------------------------------
 .DS_Store
 Thumbs.db
-settings.json
-.vscode/
 
-.ipynb_checkpoints/
-.pytest_cache/
-.ruff_cache/
+# -------------------------------------------------------
+# Secrets & environment
+# -------------------------------------------------------
+.env
+.envrc
+*.pem
+*.key
+*.pgp
+.decrypted~*
+
+# -------------------------------------------------------
+# AI tooling (local/personal files only)
+# -------------------------------------------------------
+CLAUDE.md
+CLAUDE.local.md
+.claude/settings.local.json
+docs/superpowers/
+
+# -------------------------------------------------------
+# Python
+# -------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.coverage
+.coverage.*
+
+# -------------------------------------------------------
+# Dependencies & build output
+# -------------------------------------------------------
+node_modules/
+build/
+dist/
+site/
+**/cache/
+
+# -------------------------------------------------------
+# Temp, logs, & working files
+# -------------------------------------------------------
+*.bak
+*.log
+.temp*
 .task/
-.venv/
+
+# --- repo-specific ---
+settings.json
 *.cache
 *.csv
 *.xml
 *.zip
-
 local/
-node_modules/
 
-# retain files
-!**.gitkeep
-!**.gitignore
+# -------------------------------------------------------
+# Retain (must be last — negations override above)
+# -------------------------------------------------------
+!.gitkeep
+!.gitignore
+!.env.example
+!.env.sample
