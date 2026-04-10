@@ -83,7 +83,7 @@ repos:
       - id: fix-ligatures
         stages: [pre-commit]
   # renovate: datasource=github-tags depName=zricethezav/gitleaks
-  - repo: https://github.com/zricethezav/gitleaks
+  - repo: https://github.com/gitleaks/gitleaks
     rev: "v8.30.1"
     hooks:
       - id: gitleaks
@@ -132,15 +132,13 @@ repos:
           - mdformat-ruff
           # - mdformat-shfmt # disable until can pass args (ref: https://github.com/hukkin/mdformat-shfmt/issues/7)
           - mdformat-simple-breaks
-  # renovate: datasource=github-tags depName=igorshubovych/markdownlint-cli
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: "v0.48.0"
+  # renovate: datasource=github-tags depName=rvben/rumdl-pre-commit
+  - repo: https://github.com/rvben/rumdl-pre-commit
+    rev: v0.1.67  # Use the latest release tag
     hooks:
-      - id: markdownlint
-        name: Lint markdown files
-        args:
-          - --config=.markdownlint.yaml
-          - --fix
+      # - id: rumdl      # Lint only (fails on issues)
+      #   stages: [pre-commit]
+      - id: rumdl-fmt  # Auto-format (fixes what it can)
         stages: [pre-commit]
   # renovate: datasource=github-tags depName=charliermarsh/ruff-pre-commit
   - repo: https://github.com/charliermarsh/ruff-pre-commit
@@ -176,7 +174,7 @@ repos:
         stages: [pre-commit]
   # renovate: datasource=github-tags depName=scop/pre-commit-shfmt versioning=loose
   - repo: https://github.com/scop/pre-commit-shfmt
-    rev: "v3.8.0-1"
+    rev: "v3.12.0-2"
     hooks:
       - id: shfmt
         name: Format shell scripts
@@ -187,18 +185,11 @@ repos:
           - "--indent"
           - "2"
         stages: [pre-commit]
-  - repo: local
+  # renovate: datasource=github-tags depName=biomejs/pre-commit
+  - repo: https://github.com/biomejs/pre-commit
+    rev: v2.4.10
     hooks:
-      - id: prettier
-        name: Format with Prettier
-        language: system
-        entry: prettier
-        args:
-          - --write
-          - --ignore-unknown
-          - --no-error-on-unmatched-pattern
-          # - "--ignore-path '**/*.md'"
-          # - "--ignore-path '**/*.y*ml'"
+      - id: biome-check
         stages: [pre-commit]
   # renovate: datasource=github-tags depName=adrienverge/yamllint
   - repo: https://github.com/adrienverge/yamllint
