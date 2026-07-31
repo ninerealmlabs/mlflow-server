@@ -19,25 +19,36 @@ jobs:
     steps:
       - name: Checkout Repo 🛒
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # need the base ref to diff against
+          persist-credentials: false
 
       - name: Set Up Python 🐍
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
-          python-version: 3.x
+          # 3.13 is for the shfmt hook's `language_version` pin; last entry is the default.
+          python-version: |
+            3.13
+            3.x
 
       - name: Install pre-commit 📦
         run: |
           pip install --upgrade pip
           pip install --upgrade pre-commit
 
+      # Runs every pre-commit-stage hook, not just the handful that declare a
+      # `manual` stage. Dockerfile linting comes from the hadolint hook in
+      # .pre-commit-config.yaml, so no separate hadolint action is needed.
       - name: Run pre-commit hooks ✅
-        run: pre-commit run --all-files --show-diff-on-failure --hook-stage=manual
-
-      # linting multiple dockerfiles: https://github.com/hadolint/hadolint-action/issues/3
-      - name: Lint Dockerfile ✅
-        uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5 # v3.3.0
-        with:
-          dockerfile: "Dockerfile"
-          recursive: true
-        # env:
-        #   HADOLINT_RECURSIVE: "true"
+        env:
+          BASE_REF: >-
+            ${{ github.event_name == 'pull_request'
+                && format('origin/{0}', github.base_ref)
+                || github.event.before }}
+        run: |
+          if [ -z "${BASE_REF}" ] || [ "${BASE_REF}" = "0000000000000000000000000000000000000000" ]; then
+            # workflow_dispatch, or first push of a new branch: no base to diff
+            pre-commit run --all-files --show-diff-on-failure
+          else
+            pre-commit run --from-ref "${BASE_REF}" --to-ref HEAD --show-diff-on-failure
+          fi
