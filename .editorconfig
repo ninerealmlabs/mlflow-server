@@ -29,8 +29,8 @@ trim_trailing_whitespace = false
 [go.mod]
 indent_style = tab
 
-[*.{py, ipynb}]
-indent_size = 4
+[*.{py,ipynb}]
+indent_size = unset
 indent_style = space
 
 [*.tsv]
