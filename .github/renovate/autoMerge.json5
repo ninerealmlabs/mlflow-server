@@ -1,0 +1,65 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  packageRules: [
+    {
+      description: ["Auto-merge container digest updates for trusted containers"],
+      matchDatasources: ["docker"],
+      automerge: true,
+      // automergeType: "branch",
+      matchUpdateTypes: ["digest"],
+      matchPackageNames: ["ghcr.io/ahgraber/**", "ghcr.io/ninerealmlabs/**"]
+    },
+    {
+      // Kept in sync with .pre-commit-config.yaml; a hook that isn't installed
+      // here doesn't belong in this list.
+      description: ["Auto-merge updates to trusted pre-commit packages"],
+      matchDatasources: ["github-tags"],
+      automerge: true,
+      // automergeType: "branch",
+      matchUpdateTypes: ["patch"],
+      matchPackageNames: [
+        "pre-commit/pre-commit-hooks",
+        "Lucas-C/pre-commit-hooks",
+        "sirosen/texthooks",
+        "gitleaks/gitleaks",
+        "python-jsonschema/check-jsonschema",
+        "zizmorcore/zizmor-pre-commit",
+        "stefmolin/exif-stripper",
+        "commitizen-tools/commitizen",
+        "editorconfig-checker/editorconfig-checker.python",
+        "hukkin/mdformat",
+        "rvben/rumdl-pre-commit",
+        "astral-sh/ruff-pre-commit",
+        "kynan/nbstripout",
+        "AleksaC/hadolint-py",
+        "shellcheck-py/shellcheck-py",
+        "scop/pre-commit-shfmt",
+        "biomejs/pre-commit",
+        "adrienverge/yamllint",
+        "crate-ci/typos",
+      ]
+    },
+    {
+      description: "Auto-merge GitHub Actions",
+      matchManagers: ["github-actions"],
+      automerge: true,
+      // automergeType: "branch",
+      matchUpdateTypes: ["minor", "patch", "digest"],
+      minimumReleaseAge: "3 days",
+      ignoreTests: true,
+    },
+    {
+      description: "Auto-merge trusted GitHub Actions",
+      matchManagers: ["github-actions"],
+      matchPackageNames: [
+        "/^actions\//",
+        "/^renovatebot\//",
+      ],
+      automerge: true,
+      // automergeType: "branch",
+      matchUpdateTypes: ["minor", "patch", "digest"],
+      minimumReleaseAge: "1 minute",
+      ignoreTests: true,
+    },
+  ]
+}

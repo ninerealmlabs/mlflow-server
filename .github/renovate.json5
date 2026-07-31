@@ -5,26 +5,42 @@
     "docker:enableMajor",
     "helpers:pinGitHubActionDigestsToSemver",
     ":automergePr", // ":automergeBranch",
-    ":automergeDigest",
     ":configMigration",
     ":dependencyDashboard",
     ":disableRateLimiting",
     ":docker",
     ":enablePreCommit",
-    ":rebaseStalePrs",
+    // ":rebaseStalePrs",
     ":renovatePrefix",
     ":semanticCommits",
     ":separateMultipleMajorReleases",
     ":separateMultipleMinorReleases",
     ":separatePatchReleases",
     ":timezone(America/New_York)",
-    "github>ninerealmlabs/precommit-template//.github/renovate/autoMerge.json5",
-    "github>ninerealmlabs/precommit-template//.github/renovate/customManagers.json5",
-    "github>ninerealmlabs/precommit-template//.github/renovate/labels.json5",
-    "github>ninerealmlabs/precommit-template//.github/renovate/packageRules.json5",
-    "github>ninerealmlabs/precommit-template//.github/renovate/semanticCommits.json5",
+    // Vendored from ninerealmlabs/precommit-template and adapted to this repo.
+    // NOTE: presets resolve from the default branch, so edits under
+    // .github/renovate/ do not take effect until merged to main.
+    "local>ninerealmlabs/mlflow-server//.github/renovate/autoMerge.json5",
+    "local>ninerealmlabs/mlflow-server//.github/renovate/customManagers.json5",
+    "local>ninerealmlabs/mlflow-server//.github/renovate/labels.json5",
+    "local>ninerealmlabs/mlflow-server//.github/renovate/packageRules.json5",
+    "local>ninerealmlabs/mlflow-server//.github/renovate/semanticCommits.json5",
   ],
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
+  ignorePaths: ["**/*.sops.*", "**/.archive/**"],
+  schedule: ["before 5am"],
+  minimumReleaseAge: "3 days",
   suppressNotifications: ["prEditedNotification", "prIgnoreNotification"],
-  // packageRules: []
+  // Digest auto-merge is opt-in per dependency. The shared autoMerge.json5 preset
+  // already covers ghcr.io/{ahgraber,ninerealmlabs}/** and GitHub Actions; add
+  // anything else explicitly rather than re-extending ":automergeDigest".
+  // packageRules: [
+  //   {
+  //     description: "Auto-merge digest updates for <dep>",
+  //     matchDatasources: ["docker"],
+  //     matchUpdateTypes: ["digest"],
+  //     matchPackageNames: ["docker.io/library/postgres"],
+  //     automerge: true,
+  //   },
+  // ]
 }
