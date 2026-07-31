@@ -98,6 +98,9 @@ jobs:
   build-image:
     # runs-on: self-hosted
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # push image + buildcache to ghcr.io
     steps:
       # https://stackoverflow.com/questions/70483902/how-to-actually-clean-up-the-repository-on-self-hosted-runner-after-github-actio
       - name: Cleanup build folder 🧹
@@ -111,6 +114,8 @@ jobs:
 
       - name: Checkout Repo 🛒
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Login to GitHub Container Registry ✅
         uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1

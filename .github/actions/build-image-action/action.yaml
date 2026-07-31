@@ -129,9 +129,15 @@ runs:
     - name: Inspect image digest 🔬
       shell: bash
       run: |
-        echo "IMAGE DIGEST: ${{ steps.build.outputs.digest }}"
+        echo "IMAGE DIGEST: ${IMAGE_DIGEST}"
+      env:
+        IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
 
     - name: Inspect new image 🔬
       shell: bash
       run: |
-        docker pull ${{ inputs.gh_registry }}/${{ inputs.image_name }}@${{ steps.build.outputs.digest }}
+        docker pull "${GH_REGISTRY}/${IMAGE_NAME}@${IMAGE_DIGEST}"
+      env:
+        GH_REGISTRY: ${{ inputs.gh_registry }}
+        IMAGE_NAME: ${{ inputs.image_name }}
+        IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
