@@ -1,5 +1,9 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["sqlalchemy"]
+# ///
 import os
-from typing import List
 
 from sqlalchemy import MetaData, Table, create_engine, delete, select
 from sqlalchemy.orm import Session
@@ -20,19 +24,19 @@ def get_tables(engine):
     }
 
 
-def get_deleted_experiment_ids(session: Session, tables: dict) -> List[int]:
+def get_deleted_experiment_ids(session: Session, tables: dict) -> list[int]:
     """Get IDs of experiments marked as deleted."""
     query = select(tables["experiments"].c.experiment_id).where(tables["experiments"].c.lifecycle_stage == "deleted")
     return [row[0] for row in session.execute(query)]
 
 
-def get_affected_run_uuids(session: Session, tables: dict, experiment_ids: List[int]) -> List[str]:
+def get_affected_run_uuids(session: Session, tables: dict, experiment_ids: list[int]) -> list[str]:
     """Get run UUIDs associated with given experiment IDs."""
     query = select(tables["runs"].c.run_uuid).where(tables["runs"].c.experiment_id.in_(experiment_ids))
     return [row[0] for row in session.execute(query)]
 
 
-def delete_related_records(session: Session, tables: dict, experiment_ids: List[int], run_uuids: List[str]) -> None:
+def delete_related_records(session: Session, tables: dict, experiment_ids: list[int], run_uuids: list[str]) -> None:
     """Delete all related records in dependent tables."""
     deletions = [
         delete(tables["experiment_tags"]).where(tables["experiment_tags"].c.experiment_id.in_(experiment_ids)),
