@@ -1,0 +1,21 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  packageRules: [
+    {
+      // shellcheck-py appends a wrapper build number to the shellcheck version
+      // (e.g. v0.11.0.1); semver-coerced truncates to 0.11.0 and hides
+      // wrapper-only releases. Matches the versioning=loose hint in
+      // .pre-commit-config.yaml.
+      description: "Support loose versioning for shellcheck-py's four-part tags",
+      matchDepNames: ["shellcheck-py/shellcheck-py"],
+      versioning: "loose",
+    },
+    {
+      // scop/pre-commit-shfmt tags as `<shfmt version>-<wrapper build number>` (e.g. v3.12.0-2),
+      // not semver prerelease syntax; semver-coerced drops the build number and masks wrapper-only bumps.
+      description: "Support loose versioning for shfmt's non-semver build-tagged releases",
+      matchDepNames: ["scop/pre-commit-shfmt"],
+      versioning: "loose",
+    },
+  ]
+}

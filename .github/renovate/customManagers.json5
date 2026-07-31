@@ -1,0 +1,21 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  customManagers: [
+    {
+      customType: "regex",
+      // The built-in dockerfile manager expands `ARG TAG=x` / `FROM alpine:${TAG}`,
+      // but has never produced a PR for docker/Dockerfile's quoted
+      // `FROM "${SOURCE_IMAGE}"` form -- every base-image bump in this repo's
+      // history was manual. This manager reads the ARG default directly.
+      description: "Update the base image pinned in Dockerfile ARG SOURCE_IMAGE",
+      managerFilePatterns: ["/(^|/)Dockerfile$/"],
+      matchStrings: [
+        // ARG SOURCE_IMAGE=python:3.12-slim-bullseye
+        // ARG SOURCE_IMAGE="python:3.12-slim-bullseye@sha256:abc..."
+        "ARG\\s+SOURCE_IMAGE=[\"']?(?<depName>[^\"'\\s:@]+):(?<currentValue>[^\"'\\s@]+?)(?:@(?<currentDigest>sha256:[a-f0-9]+))?[\"']?\\s*$",
+      ],
+      datasourceTemplate: "docker",
+      versioningTemplate: "docker",
+    },
+  ]
+}
