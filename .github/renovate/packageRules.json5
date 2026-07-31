@@ -2,19 +2,19 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   packageRules: [
     {
-      // shellcheck-py appends a wrapper build number to the shellcheck version
-      // (e.g. v0.11.0.1); semver-coerced truncates to 0.11.0 and hides
-      // wrapper-only releases. Matches the versioning=loose hint in
-      // .pre-commit-config.yaml.
-      description: "Support loose versioning for shellcheck-py's four-part tags",
-      matchDepNames: ["shellcheck-py/shellcheck-py"],
-      versioning: "loose",
-    },
-    {
-      // scop/pre-commit-shfmt tags as `<shfmt version>-<wrapper build number>` (e.g. v3.12.0-2),
-      // not semver prerelease syntax; semver-coerced drops the build number and masks wrapper-only bumps.
-      description: "Support loose versioning for shfmt's non-semver build-tagged releases",
-      matchDepNames: ["scop/pre-commit-shfmt"],
+      // Both wrappers tag as `<upstream version><separator><wrapper build number>`
+      // (scop/pre-commit-shfmt: v3.13.1-1; shellcheck-py: v0.11.0.1). Neither is semver, and
+      // semver-coerced drops the build number, masking wrapper-only bumps.
+      //
+      // Versioning must be set here, not in .pre-commit-config.yaml: the built-in `pre-commit`
+      // manager (see `:enablePreCommit`) parses `repo:`/`rev:` structurally, so the
+      // `# renovate: ... versioning=loose` comments in that file are documentation only and
+      // are ignored.
+      description: "Support loose versioning for non-semver build-tagged wrapper releases",
+      matchDepNames: [
+        "scop/pre-commit-shfmt",
+        "shellcheck-py/shellcheck-py",
+      ],
       versioning: "loose",
     },
   ]
