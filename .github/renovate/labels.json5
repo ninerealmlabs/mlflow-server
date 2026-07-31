@@ -18,10 +18,6 @@
       labels: ["type/digest"],
     },
     {
-      matchDatasources: ["copier"],
-      addLabels: ["renovate/copier"],
-    },
-    {
       matchDatasources: ["docker"],
       addLabels: ["renovate/container"],
     },
