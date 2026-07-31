@@ -9,6 +9,8 @@ on:
       - docker/*
   workflow_dispatch:
 
+permissions: {} # each job opts in to what it needs
+
 # yamllint disable rule:colons
 env: # define 'static' vars here
   platforms:   "linux/amd64,linux/arm64"
@@ -23,6 +25,8 @@ jobs:
   export-envs:
     # runs-on: self-hosted
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       # yamllint disable rule:colons
       platforms:   ${{ env.platforms }}
@@ -36,6 +40,8 @@ jobs:
 
       - name: Checkout Repo 🛒
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Get MLFlow version 🏷
         id: version
@@ -72,6 +78,9 @@ jobs:
 
   build:
     needs: [export-envs]
+    permissions:
+      contents: read
+      packages: write # push image + buildcache to ghcr.io
     uses: ./.github/workflows/2-build-test-tag.yaml
     with:
       # yamllint disable rule:colons
@@ -85,7 +94,8 @@ jobs:
       owner:          ${{ needs.export-envs.outputs.owner }}
       version:        ${{ needs.export-envs.outputs.version }}
       # yamllint enable
-    secrets: inherit
+    # no `secrets: inherit` -- the callee only uses GITHUB_TOKEN, which is
+    # always available to called workflows
 
   release:
     needs: [export-envs, build]
