@@ -26,7 +26,10 @@ jobs:
       - name: Set Up Python 🐍
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
-          python-version: 3.x
+          # 3.13 is for the shfmt hook's `language_version` pin; last entry is the default.
+          python-version: |
+            3.13
+            3.x
 
       - name: Install pre-commit 📦
         run: |
