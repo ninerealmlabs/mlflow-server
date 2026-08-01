@@ -1,6 +1,6 @@
 ARG SOURCE_IMAGE=python:3.13-slim-trixie
 # hadolint ignore=DL3006
-FROM "${SOURCE_IMAGE}"
+FROM ${SOURCE_IMAGE}
 
 # Labels
 ARG BUILD_DATE
