@@ -10,8 +10,8 @@
       description: "Update the base image pinned in Dockerfile ARG SOURCE_IMAGE",
       managerFilePatterns: ["/(^|/)Dockerfile$/"],
       matchStrings: [
-        // ARG SOURCE_IMAGE=python:3.12-slim-bullseye
-        // ARG SOURCE_IMAGE="python:3.12-slim-bullseye@sha256:abc..."
+        // ARG SOURCE_IMAGE=python:3.13-slim-trixie
+        // ARG SOURCE_IMAGE="python:3.13-slim-trixie@sha256:abc..."
         "ARG\\s+SOURCE_IMAGE=[\"']?(?<depName>[^\"'\\s:@]+):(?<currentValue>[^\"'\\s@]+?)(?:@(?<currentDigest>sha256:[a-f0-9]+))?[\"']?\\s*$",
       ],
       datasourceTemplate: "docker",
