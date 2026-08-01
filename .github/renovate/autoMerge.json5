@@ -44,7 +44,8 @@
       matchManagers: ["github-actions"],
       automerge: true,
       // automergeType: "branch",
-      matchUpdateTypes: ["minor", "patch", "digest"],
+      // Patch and digest only; minor and major need a human to merge.
+      matchUpdateTypes: ["patch", "digest"],
       minimumReleaseAge: "3 days",
       ignoreTests: true,
     },
@@ -57,7 +58,8 @@
       ],
       automerge: true,
       // automergeType: "branch",
-      matchUpdateTypes: ["minor", "patch", "digest"],
+      // Patch and digest only; minor and major need a human to merge.
+      matchUpdateTypes: ["patch", "digest"],
       minimumReleaseAge: "1 minute",
       ignoreTests: true,
     },
