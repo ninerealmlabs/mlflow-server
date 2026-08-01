@@ -22,7 +22,6 @@
     // NOTE: presets resolve from the default branch, so edits under
     // .github/renovate/ do not take effect until merged to main.
     "local>ninerealmlabs/mlflow-server//.github/renovate/autoMerge.json5",
-    "local>ninerealmlabs/mlflow-server//.github/renovate/customManagers.json5",
     "local>ninerealmlabs/mlflow-server//.github/renovate/labels.json5",
     "local>ninerealmlabs/mlflow-server//.github/renovate/packageRules.json5",
     "local>ninerealmlabs/mlflow-server//.github/renovate/semanticCommits.json5",
