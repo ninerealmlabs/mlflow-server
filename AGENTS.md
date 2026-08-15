@@ -45,6 +45,8 @@ When editing existing code:
   Don't refactor existing code unless it is part of the request.
 - Remove imports/variables/functions that YOUR changes made unused.
 - Don't remove pre-existing dead code unless asked — mention it instead.
+- Propose unrequested improvements in one line at the end; don't fold them into the change.
+- Change one thing at a time and report it before starting the next.
 
 ## 4. Goal-Driven Execution
 
@@ -67,10 +69,26 @@ For multi-step tasks, state a brief plan defining the step task and associated v
 
 ## 5. Definition of Done
 
+The required checks are the full test suite and every hook in `.pre-commit-config.yaml`.
+Slow, or looking unrelated to the change, is not a reason to skip one.
+
 - The requested behavior works as specified.
 - Behavior changes are covered by tests, or testing gaps are explicitly stated.
 - Public contract changes are documented.
-- Required checks were run when available; if not run, state what was skipped and why.
+- The hooks pass on everything changed since `HEAD`, staged or not, including new files.
+  Pass the paths NUL-delimited so names with spaces survive:
+
+  ```sh
+  { git diff -z --name-only --diff-filter=d HEAD; git ls-files -z --others --exclude-standard; } | xargs -0 prek run --files
+  ```
+
+  Report failing hook output verbatim and fix the cause — a failure is a defect, not an unavailable check.
+- A check is unavailable only when the command itself fails to run — missing binary, permission error, no network.
+  Then name the check, quote the error, and give the user the exact command to run.
+- Never call a change "confirmed", "verified", or "working" unless you ran the command in this session and read its output.
+  Do not describe expected output as if you had seen it.
+- Re-read a file immediately before reporting on it.
+  Never report from a snapshot taken earlier in the session — the user edits files between turns.
 
 ## Defaults
 
@@ -83,6 +101,20 @@ For multi-step tasks, state a brief plan defining the step task and associated v
 - Use structured logging where the project uses logging.
 - Run lint/format/test through project tooling when available; do not hand-format code.
 - Write tests for public behavior and regressions, not implementation details.
+
+## Terminology and Tone
+
+- Prefer the tone of a professional technical writer.
+- Use the vocabulary already in the project.
+  Do not invent jargon, and name a thing after its effect rather than its mechanism.
+- State findings plainly.
+  No flattery, no hedging.
+- Label an unresolved question `OPEN QUESTION` and queue it; do not present it as a conclusion.
+
+## Commit Workflow
+
+- Commit only when the user asks, and draft the message at that point, not in advance.
+- Never pass `--no-verify` or work around a hook silently.
 
 ## Sandbox Limitations
 
