@@ -1,4 +1,4 @@
-ARG SOURCE_IMAGE=python:3.13-slim-trixie@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
+ARG SOURCE_IMAGE=python:3.14-slim-trixie@sha256:a7fb1e634c4a578f9e0bd6327f11a3cde11b7a9395f48e24360c0988bcc5c2bc
 # hadolint ignore=DL3006
 FROM ${SOURCE_IMAGE}
 
