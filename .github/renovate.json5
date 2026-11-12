@@ -1,32 +1,49 @@
 {
-  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: [
-    'config:best-practices',
-    'docker:enableMajor',
-    'helpers:pinGitHubActionDigestsToSemver',
-    ':automergePr',
-    ':disableRateLimiting',
-    ':enablePreCommit',
-    ':semanticCommits',
-    ':separateMultipleMajorReleases',
-    ':separateMultipleMinorReleases',
-    ':separatePatchReleases',
-    ':timezone(America/New_York)',
-    'local>ninerealmlabs/mlflow-server//.github/renovate/autoMerge.json5',
-    'local>ninerealmlabs/mlflow-server//.github/renovate/labels.json5',
-    'local>ninerealmlabs/mlflow-server//.github/renovate/packageRules.json5',
-    'local>ninerealmlabs/mlflow-server//.github/renovate/semanticCommits.json5',
+    "config:best-practices",
+    // Base-image majors are wanted here; keep this so nothing quietly reintroduces
+    // `docker:disableMajor`, which this exists to counter.
+    "docker:enableMajor",
+    // Supersedes the `helpers:pinGitHubActionDigests` that best-practices already pulls in,
+    // adding the semver `extractVersion` so pinned digests still show a readable version.
+    "helpers:pinGitHubActionDigestsToSemver",
+    ":automergePr", // ":automergeBranch",
+    ":disableRateLimiting",
+    // The pre-commit manager is one of the few disabled by default.
+    ":enablePreCommit",
+    // ":rebaseStalePrs",
+    ":semanticCommits",
+    ":separateMultipleMajorReleases",
+    ":separateMultipleMinorReleases",
+    ":separatePatchReleases",
+    ":timezone(America/New_York)",
+    // Vendored from ninerealmlabs/precommit-template and adapted to this repo.
+    // NOTE: presets resolve from the default branch, so edits under
+    // .github/renovate/ do not take effect until merged to main.
+    "local>ninerealmlabs/mlflow-server//.github/renovate/autoMerge.json5",
+    "local>ninerealmlabs/mlflow-server//.github/renovate/labels.json5",
+    "local>ninerealmlabs/mlflow-server//.github/renovate/packageRules.json5",
+    "local>ninerealmlabs/mlflow-server//.github/renovate/semanticCommits.json5",
   ],
   dependencyDashboard: {
+    // Already on via config:recommended; stated here because the title below depends on it.
     enabled: true,
-    title: 'Renovate Dashboard 🤖',
+    title: "Renovate Dashboard 🤖",
   },
-  schedule: [
-    'before 5am',
-  ],
-  minimumReleaseAge: '3 days',
-  suppressNotifications: [
-    'prEditedNotification',
-    'prIgnoreNotification',
-  ],
+  schedule: ["before 5am"],
+  minimumReleaseAge: "3 days",
+  suppressNotifications: ["prEditedNotification", "prIgnoreNotification"],
+  // Digest auto-merge is opt-in per dependency. The shared autoMerge.json5 preset
+  // already covers ghcr.io/{ahgraber,ninerealmlabs}/** and GitHub Actions; add
+  // anything else explicitly rather than re-extending ":automergeDigest".
+  // packageRules: [
+  //   {
+  //     description: "Auto-merge digest updates for <dep>",
+  //     matchDatasources: ["docker"],
+  //     matchUpdateTypes: ["digest"],
+  //     matchPackageNames: ["docker.io/library/postgres"],
+  //     automerge: true,
+  //   },
+  // ]
 }
